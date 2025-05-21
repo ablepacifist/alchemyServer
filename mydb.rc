@@ -1,0 +1,4 @@
+url=jdbc:hsqldb:hsql://localhost:9001/mydb
+user=SA
+password=
+
