@@ -1,10 +1,10 @@
 # Compiler and paths
 JAVAC = javac
 JAVA = java
-JAR_PATH = lib/hsqldb.jar
+JAR_PATH = lib/hsqldb.jar:lib/HikariCP-3.1.0.jar
 SRC = Main.java data/*.java object/*.java
 OUT = bin
-DB_PATH = alchemydb  # Relative path for the database file (it will be created in the project root)
+DB_PATH = alchemydb  # Relative path for the database file (created in the project root)
 
 # Default rule: compile, start the server, then run the program
 all: compile start-server run

@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import object.Inventory;
 import object.KnowledgeBook;
@@ -21,40 +23,63 @@ import object.Ingredient;
 import object.Player;
 import object.Potion;
 
+
+
 public class HSQLDatabase implements IStubDatabase {
 
-    private Connection connection;
-
     private final String dbPath;
+    private static HikariDataSource dataSource;
 
+    // Initialize the connection pool in a static block
     static {
         try {
-            Class.forName("org.hsqldb.jdbc.JDBCDriver");
+            Class.forName("org.hsqldb.jdbc.JDBCDriver"); // Ensure the driver is loaded
+
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl("jdbc:hsqldb:file:alchemydb;hsqldb.write_delay=false");
+            config.setUsername("SA");
+            config.setMaximumPoolSize(12);  // Up to 12 simultaneous connections
+            config.setConnectionTimeout(9000);  // Max 9 sec wait for a connection
+
+            dataSource = new HikariDataSource(config); // Initialize the connection pool
         } catch (ClassNotFoundException e) {
+            e.printStackTrace(); // Handle missing driver error
+        }
+    }
+
+    public HSQLDatabase(String databasePath) {
+        this.dbPath = databasePath;
+
+        createTables();
+        seedInitialData();
+
+        // Use the connection pool correctly
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet rs = stmt.executeQuery("SELECT * FROM EFFECTS");
+            while (rs.next()) {
+                System.out.println("Effect found: " + rs.getString("TITLE"));
+            }
+            
+            stmt.execute("CHECKPOINT");
+            System.out.println("CHECKPOINT executed!");
+
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public HSQLDatabase(String databasePath) throws SQLException, IOException {
-        this.dbPath = databasePath;
-        // For development purposes, reset the database if files already exist.
-        //for local only:
-        //String url = "jdbc:hsqldb:hsql://localhost/mydb";
-        //for local that is in server mode
-        //String url = "jdbc:hsqldb:hsql://localhost:9001/mydb;hsqldb.write_delay=false;shutdown=true";
-        //or
-        String url = "jdbc:hsqldb:hsql://localhost/mydb";
-        //public:
-        //String url = "jdbc:hsqldb:hsql://<IP address>/mydb";
-        connection = DriverManager.getConnection(url, "SA", "");
-
-        createTables();
-        seedInitialData();
+    // Method to get a connection from the pool
+    public static Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
+
 
     public void seedInitialData() {
         System.out.println("in seedInitalData");
-        try (Statement stmt = connection.createStatement()) {
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
             // Before seeding, check if the INGREDIENTS table is empty:
             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS count FROM INGREDIENTS");
             rs.next();
@@ -102,7 +127,7 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (37, 'Resist Paralyze', 'Reduces susceptibility to paralysis or immobilizing spells.')");
                 stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (38, 'Frost', 'Inflicts a chilling effect that hampers the targets movement.')");
                 //stmt.execute("CHECKPOINT");
-                connection.commit();
+                conn.commit();
                 System.out.println("Effects seeded successfully.");
 
 
@@ -228,7 +253,7 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENTS (ID, NAME) VALUES (119, 'Whiskey')");
                 stmt.executeUpdate("INSERT INTO INGREDIENTS (ID, NAME) VALUES (120, 'Butter')");
                 System.out.println("inital ingredients seeded");
-                connection.commit();
+                conn.commit();
                 //stmt.execute("CHECKPOINT");
 
                 // Insert for junction tables, players, etc. as applicable.
@@ -854,7 +879,7 @@ public class HSQLDatabase implements IStubDatabase {
                 System.out.println("Player 'alex' and his starting inventory have been seeded successfully.");
 
                 String distinctQuery = "SELECT DISTINCT ingredient_id FROM INVENTORY WHERE player_id = ?";
-                try (PreparedStatement ps = connection.prepareStatement(distinctQuery)) {
+                try (PreparedStatement ps = conn.prepareStatement(distinctQuery)) {
                     ps.setInt(1, alexId);
                     try (ResultSet rss = ps.executeQuery()) {
                         while (rss.next()) {
@@ -866,7 +891,7 @@ public class HSQLDatabase implements IStubDatabase {
                         }
                     }
                 }
-                connection.commit();
+                conn.commit();
                 
             }
         } catch (SQLException e) {
@@ -876,6 +901,9 @@ public class HSQLDatabase implements IStubDatabase {
 
     }
 
+
+    //old:
+    /* 
     private Connection connection() throws SQLException {
         String url = "jdbc:hsqldb:file:" + dbPath + ";shutdown=true";
         return DriverManager.getConnection(url, "SA", "");
@@ -891,6 +919,8 @@ public class HSQLDatabase implements IStubDatabase {
             e.printStackTrace();
         }
     }
+
+    */
 
     ////////////////////////////////////////////////////////////////////////////////
     // TABLE CREATION
@@ -913,8 +943,8 @@ private void resetDatabaseFiles() {
 
 
     public void createTables() throws SQLException {
-        Statement stmt = connection.createStatement();
-        try {
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
             // Create effects table if it doesn't exist.
             String createEffectsTable = "CREATE TABLE IF NOT EXISTS PUBLIC.EFFECTS ("
                     + "id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, "
@@ -1008,8 +1038,6 @@ private void resetDatabaseFiles() {
                     + ")";
             stmt.executeUpdate(createPotionEffectsTable);
 
-        } finally {
-            stmt.close();
         }
     }
 
@@ -1022,7 +1050,8 @@ private void resetDatabaseFiles() {
     @Override
     public int getNextPotionId() {
         String sql = "SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM potions";
-        try (Statement stmt = connection.createStatement();
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 return rs.getInt("nextId");
@@ -1036,7 +1065,8 @@ private void resetDatabaseFiles() {
     @Override
     public int getNextPlayerId() {
         String sql = "SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM players";
-        try (Statement stmt = connection.createStatement();
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 return rs.getInt("nextId");
@@ -1056,7 +1086,8 @@ private void resetDatabaseFiles() {
     @Override
     public IIngredient getIngredientByName(String name) {
         String sql = "SELECT * FROM ingredients WHERE LOWER(name) = LOWER(?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -1073,7 +1104,8 @@ private void resetDatabaseFiles() {
         String sql = "SELECT e.id, e.title, e.description FROM effects e "
                 + "INNER JOIN ingredient_effects ie ON e.id = ie.effect_id "
                 + "WHERE ie.ingredient_id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredientId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -1091,7 +1123,8 @@ private void resetDatabaseFiles() {
     public List<IIngredient> getAllIngredients() {
         List<IIngredient> ingredients = new ArrayList<>();
         String sql = "SELECT * FROM ingredients";
-        try (Statement stmt = connection.createStatement();
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 ingredients.add(new Ingredient(rs.getInt("id"), rs.getString("name"), getEffectsForIngredient(rs.getInt("id"))));
@@ -1109,7 +1142,8 @@ private void resetDatabaseFiles() {
     @Override
     public void addPlayer(Player player) {
         String sql = "INSERT INTO PUBLIC.PLAYERS (id, username, password, level) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, player.getId());
             pstmt.setString(2, player.getUsername());
             pstmt.setString(3, player.getPassword());
@@ -1123,7 +1157,8 @@ private void resetDatabaseFiles() {
     @Override
     public Player getPlayer(int playerId) {
         String sql = "SELECT * FROM PUBLIC.PLAYERS WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -1146,7 +1181,8 @@ private void resetDatabaseFiles() {
     }
     public void updatePlayerLevel(int playerId, int newLevel) {
         String sql = "UPDATE PUBLIC.PLAYERS SET level = ? WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, newLevel);
             pstmt.setInt(2, playerId);
             pstmt.executeUpdate();
@@ -1160,7 +1196,8 @@ private void resetDatabaseFiles() {
     @Override
     public Player getPlayerByUsername(String username) {
         String sql = "SELECT * FROM PUBLIC.PLAYERS WHERE LOWER(username) = LOWER(?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -1186,7 +1223,8 @@ private void resetDatabaseFiles() {
         List<Player> players = new ArrayList<>();
         String sql = "SELECT * FROM players";
 
-        try (Statement stmt = connection.createStatement();
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 int playerId = rs.getInt("id");
@@ -1220,7 +1258,8 @@ private void resetDatabaseFiles() {
     @Override
     public IIngredient getIngredientById(int ingredientId) {
         String sql = "SELECT id, name FROM ingredients WHERE id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredientId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -1238,7 +1277,8 @@ private void resetDatabaseFiles() {
     @Override
     public void addIngredientToPlayerInventory(int playerId, IIngredient ingredient, int quantity) {
         String updateSql = "UPDATE inventory SET quantity = quantity + ? WHERE player_id = ? AND ingredient_id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(updateSql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
             pstmt.setInt(1, quantity);
             pstmt.setInt(2, playerId);
             pstmt.setInt(3, ingredient.getId());
@@ -1246,12 +1286,12 @@ private void resetDatabaseFiles() {
             if (affected == 0) {
                 System.out.println("Ingredient not in inventory, inserting new row.");
                 String insertSql = "INSERT INTO inventory (player_id, ingredient_id, quantity) VALUES (?, ?, ?)";
-                try (PreparedStatement insertStmt = connection.prepareStatement(insertSql)) {
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                     insertStmt.setInt(1, playerId);
                     insertStmt.setInt(2, ingredient.getId());
                     insertStmt.setInt(3, quantity);
                     insertStmt.executeUpdate();
-                    connection.commit();
+                    conn.commit();
                 }
             } else {
                 System.out.println("Ingredient updated in inventory, new quantity added.");
@@ -1266,13 +1306,14 @@ private void resetDatabaseFiles() {
     @Override
     public void removeIngredientFromPlayerInventory(int playerId, IIngredient ingredient, int quantity) {
         String sql = "UPDATE inventory SET quantity = quantity - ? WHERE player_id = ? AND ingredient_id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, quantity);
             pstmt.setInt(2, playerId);
             pstmt.setInt(3, ingredient.getId());
             pstmt.executeUpdate();
             String deleteSql = "DELETE FROM inventory WHERE player_id = ? AND ingredient_id = ? AND quantity <= 0";
-            try (PreparedStatement deleteStmt = connection.prepareStatement(deleteSql)) {
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteSql)) {
                 deleteStmt.setInt(1, playerId);
                 deleteStmt.setInt(2, ingredient.getId());
                 deleteStmt.executeUpdate();
@@ -1293,7 +1334,8 @@ private void resetDatabaseFiles() {
     public void addKnowledgeEntry(int playerId, IIngredient ingredient, IEffect effect) {
         // First, check if the knowledge entry already exists.
         String checkSql = "SELECT COUNT(*) FROM knowledge_book WHERE player_id = ? AND ingredient_id = ? AND effect_id = ?";
-        try (PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
             checkStmt.setInt(1, playerId);
             checkStmt.setInt(2, ingredient.getId());
             checkStmt.setInt(3, effect.getId());
@@ -1312,7 +1354,8 @@ private void resetDatabaseFiles() {
 
         // No entry exists; perform the insert.
         String insertSql = "INSERT INTO knowledge_book (player_id, ingredient_id, effect_id) VALUES (?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(insertSql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
             pstmt.setInt(1, playerId);
             pstmt.setInt(2, ingredient.getId());
             pstmt.setInt(3, effect.getId());
@@ -1326,10 +1369,9 @@ private void resetDatabaseFiles() {
     public void updateKnowledgeBook(int playerId, IIngredient ingredient) {
         String checkSql = "SELECT COUNT(*) FROM knowledge_book WHERE player_id = ? AND ingredient_id = ? AND effect_id = ?";
         String insertSql = "INSERT INTO knowledge_book (player_id, ingredient_id, effect_id) VALUES (?, ?, ?)";
-        try (
-                PreparedStatement checkStmt = connection.prepareStatement(checkSql);
-                PreparedStatement insertStmt = connection.prepareStatement(insertSql)
-        ) {
+        try (Connection conn = getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+             PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
             for (IEffect effect : ingredient.getEffects()) {
                 if (effect != null) {
                     // Check if the effect already exists
@@ -1367,7 +1409,8 @@ private void resetDatabaseFiles() {
                 "INNER JOIN effects e ON kb.effect_id = e.id " +
                 "WHERE kb.player_id = ?";
 
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -1428,11 +1471,11 @@ private void resetDatabaseFiles() {
         System.out.println("DEBUG: SQL Query: " + sqlPotions);
 
 
-        try {
+        try (Connection conn = getConnection()) {
             // --------------------------------------------------------
             // Process ingredient rows and aggregate them.
             // --------------------------------------------------------
-            PreparedStatement pstmtIngredients = connection.prepareStatement(sqlIngredients);
+            PreparedStatement pstmtIngredients = conn.prepareStatement(sqlIngredients);
             pstmtIngredients.setInt(1, playerId);
             ResultSet rsIng = pstmtIngredients.executeQuery();
 
@@ -1474,7 +1517,7 @@ private void resetDatabaseFiles() {
             // --------------------------------------------------------
             // Process potion rows and aggregate them.
             // --------------------------------------------------------
-            PreparedStatement pstmtPotions = connection.prepareStatement(sqlPotions);
+            PreparedStatement pstmtPotions = conn.prepareStatement(sqlPotions);
             pstmtPotions.setInt(1, playerId);
             ResultSet rsPot = pstmtPotions.executeQuery();
 
@@ -1557,12 +1600,13 @@ private void resetDatabaseFiles() {
     @Override
     public void addPotionToPlayerInventory(int playerId, Potion potion, int quantity) {
         String sql = "INSERT INTO PUBLIC.PLAYER_POTIONS (player_id, potion_id, quantity) VALUES (?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
             pstmt.setInt(2, potion.getId());
             pstmt.setInt(3, quantity);
             int rowsAffected = pstmt.executeUpdate();
-            connection.commit(); // Commit the transaction explicitly if auto-commit is off
+            conn.commit(); // Commit the transaction explicitly if auto-commit is off
             System.out.println("DEBUG: Inserted potion row for player " + playerId + ", potion ID " + potion.getId() + ", rows affected: " + rowsAffected +"  with brewlevel: "+ potion.getBrewLevel());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1572,7 +1616,8 @@ private void resetDatabaseFiles() {
     public void addPotion(Potion potion) {
         // Updated SQL statement to include duration and brew_level.
         String sqlPotion = "INSERT INTO PUBLIC.POTIONS (id, name, ingredient1_id, ingredient2_id, description, duration, brew_level, bonus_dice) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = connection.prepareStatement(sqlPotion)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sqlPotion)) {
             pstmt.setInt(1, potion.getId());
             pstmt.setString(2, potion.getName());
             if (potion.getIngredient1() != null) {
@@ -1595,7 +1640,7 @@ private void resetDatabaseFiles() {
             pstmt.setString(8, potion.getBonusDice());       // Bonus dice
 
             pstmt.executeUpdate();
-            connection.commit();
+            conn.commit();
             System.out.println("DEBUG: Potion inserted into POTIONS table: " + potion.getName());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1604,13 +1649,14 @@ private void resetDatabaseFiles() {
 
         // Insert each effect into the POTION_EFFECTS table.
         String sqlEffects = "INSERT INTO PUBLIC.POTION_EFFECTS (potion_id, effect_id) VALUES (?, ?)";
-        try (PreparedStatement pstmtEffects = connection.prepareStatement(sqlEffects)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmtEffects = conn.prepareStatement(sqlEffects)) {
             for (IEffect effect : potion.getEffects()) {
                 pstmtEffects.setInt(1, potion.getId());
                 pstmtEffects.setInt(2, effect.getId());
                 pstmtEffects.executeUpdate();
             }
-            connection.commit();
+            conn.commit();
             System.out.println("DEBUG: Inserted " + potion.getEffects().size() + " effect(s) for potion: " + potion.getName());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1620,7 +1666,8 @@ private void resetDatabaseFiles() {
 
     public void debugPlayerPotions(int playerId) {
         String sql = "SELECT * FROM PUBLIC.PLAYER_POTIONS WHERE player_id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 System.out.println("DEBUG: PLAYER_POTIONS rows for player ID " + playerId + ":");
@@ -1642,7 +1689,8 @@ public void removePotionFromPlayerInventory(int playerId, Potion potion, int qua
     // First, attempt to update the quantity.
     String sqlUpdate = "UPDATE player_potions SET quantity = quantity - ? "
             + "WHERE player_id = ? AND potion_id = ?";
-    try (PreparedStatement pstmt = connection.prepareStatement(sqlUpdate)) {
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
         pstmt.setInt(1, quantity);
         pstmt.setInt(2, playerId);
         pstmt.setInt(3, potion.getId());
@@ -1660,7 +1708,8 @@ public void removePotionFromPlayerInventory(int playerId, Potion potion, int qua
 
     // Optionally, you might want to delete the row if quantity has reached zero.
     String sqlDelete = "DELETE FROM player_potions WHERE player_id = ? AND potion_id = ? AND quantity <= 0";
-    try (PreparedStatement pstmt = connection.prepareStatement(sqlDelete)) {
+    try (Connection conn = getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sqlDelete)) {
         pstmt.setInt(1, playerId);
         pstmt.setInt(2, potion.getId());
         pstmt.executeUpdate();
@@ -1671,7 +1720,8 @@ public void removePotionFromPlayerInventory(int playerId, Potion potion, int qua
 }
 
     public void deleteAllData() throws SQLException {
-        try (Statement stmt = connection.createStatement()) {
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DELETE FROM knowledge_book");
             stmt.executeUpdate("DELETE FROM inventory");
             stmt.executeUpdate("DELETE FROM potions");
@@ -1683,7 +1733,8 @@ public void removePotionFromPlayerInventory(int playerId, Potion potion, int qua
     }
     public void logAllPlayers() {
         String sql = "SELECT * FROM players";
-        try (Statement stmt = connection.createStatement();
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 int id = rs.getInt("id");
