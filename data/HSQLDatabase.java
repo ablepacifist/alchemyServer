@@ -47,7 +47,7 @@ public class HSQLDatabase implements IStubDatabase {
         }
     }
 
-    public HSQLDatabase(String databasePath) {
+    public HSQLDatabase(String databasePath)throws SQLException, IOException {
         this.dbPath = databasePath;
 
         createTables();
@@ -1400,7 +1400,7 @@ private void resetDatabaseFiles() {
     }
 
     @Override
-    public IKnowledgeBook getKnowledgeBook(int playerId) {
+    public IKnowledgeBook getKnowledgeBook(int playerId)  {
         Map<Integer, List<IEffect>> knowledgeBook = new HashMap<>();
         String sql = "SELECT i.id AS ingredient_id, e.id AS effect_id, e.title AS effect_title, " +
                 "e.description AS effect_description " +
