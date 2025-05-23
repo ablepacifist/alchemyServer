@@ -36,11 +36,12 @@ public class HSQLDatabase implements IStubDatabase {
             Class.forName("org.hsqldb.jdbc.JDBCDriver"); // Ensure the driver is loaded
 
             HikariConfig config = new HikariConfig();
-            config.setJdbcUrl("jdbc:hsqldb:file:alchemydb;hsqldb.write_delay=false");
+            config.setJdbcUrl("jdbc:hsqldb:hsql://localhost:9001/mydb");
+
             config.setUsername("SA");
             config.setMaximumPoolSize(12);  // Up to 12 simultaneous connections
-            config.setConnectionTimeout(9000);  // Max 9 sec wait for a connection
-
+            config.setInitializationFailTimeout(0);
+            config.setConnectionTimeout(15000);
             dataSource = new HikariDataSource(config); // Initialize the connection pool
         } catch (ClassNotFoundException e) {
             e.printStackTrace(); // Handle missing driver error

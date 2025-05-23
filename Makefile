@@ -1,8 +1,8 @@
 # Compiler and paths
 JAVAC = javac
 JAVA = java
-JAR_PATH = lib/hsqldb.jar:lib/HikariCP-3.1.0.jar
-SRC = Main.java data/*.java object/*.java
+JAR_PATH = lib/hsqldb.jar:lib/HikariCP-3.1.0.jar:lib/slf4j-api-1.7.36.jar:lib/slf4j-simple-1.7.36.jar
+SRC = Main.java data/*.java object/*.java logic/*.java
 OUT = bin
 DB_PATH = alchemydb  # Relative path for the database file (created in the project root)
 
