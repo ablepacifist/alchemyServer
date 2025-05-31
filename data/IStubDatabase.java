@@ -2,6 +2,7 @@ package data;
 
 import java.util.List;
 import java.util.Map;
+import java.sql.SQLException;
 import java.util.Collection; 
 
 import object.IEffect;
@@ -52,4 +53,6 @@ public interface IStubDatabase {
     void addPotion(Potion potion);
 
     void updatePlayerLevel(int id, int level);
+    //void resetDatabase() throws SQLException;
+    void deletePlayer(int playerId) throws SQLException;
 }

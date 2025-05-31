@@ -23,8 +23,6 @@ import object.Ingredient;
 import object.Player;
 import object.Potion;
 
-
-
 public class HSQLDatabase implements IStubDatabase {
 
     private final String dbPath;
@@ -39,7 +37,7 @@ public class HSQLDatabase implements IStubDatabase {
             config.setJdbcUrl("jdbc:hsqldb:hsql://localhost:9001/mydb");
 
             config.setUsername("SA");
-            config.setMaximumPoolSize(12);  // Up to 12 simultaneous connections
+            config.setMaximumPoolSize(12); // Up to 12 simultaneous connections
             config.setInitializationFailTimeout(0);
             config.setConnectionTimeout(15000);
             dataSource = new HikariDataSource(config); // Initialize the connection pool
@@ -48,7 +46,7 @@ public class HSQLDatabase implements IStubDatabase {
         }
     }
 
-    public HSQLDatabase(String databasePath)throws SQLException, IOException {
+    public HSQLDatabase(String databasePath) throws SQLException, IOException {
         this.dbPath = databasePath;
 
         createTables();
@@ -56,13 +54,13 @@ public class HSQLDatabase implements IStubDatabase {
 
         // Use the connection pool correctly
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
 
             ResultSet rs = stmt.executeQuery("SELECT * FROM EFFECTS");
             while (rs.next()) {
                 System.out.println("Effect found: " + rs.getString("TITLE"));
             }
-            
+
             stmt.execute("CHECKPOINT");
             System.out.println("CHECKPOINT executed!");
 
@@ -76,11 +74,10 @@ public class HSQLDatabase implements IStubDatabase {
         return dataSource.getConnection();
     }
 
-
     public void seedInitialData() {
         System.out.println("in seedInitalData");
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             // Before seeding, check if the INGREDIENTS table is empty:
             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS count FROM INGREDIENTS");
             rs.next();
@@ -89,48 +86,85 @@ public class HSQLDatabase implements IStubDatabase {
             if (count == 0) {
                 // Insert initial effects.
                 System.out.println("putting data in");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (1, 'Paralyze', 'The target’s muscles seize up, preventing any movement for a short time.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (2, 'Light', 'The target begins to glow steadily like a torch, illuminating the area.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (3, 'Resist Poison', 'The target gains temporary resistance to toxins and poisons.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (4, 'Slow', 'The target moves sluggishly, reducing their speed and reflexes.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (5, 'Dream', 'The target is temporarily transported to a surreal dreamworld, leaving them disoriented upon return.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (6, 'Magic', 'Replenishes a spell slot, restoring a fraction of arcane energy without specifying a fixed value.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (7, 'Restore Health', 'Gradually mends wounds and revives vitality over a short period.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (8, 'Invisibility', 'The target becomes unseen, blending into the surroundings for a brief duration.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (9, 'Fire', 'Engulfs the target or weapon in flames, causing burning damage over time.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (10, 'Silence', 'A zone of silence prevents spellcasting and the verbal component of spells.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (11, 'Strength', 'Temporarily increases the target’s physical power and melee damage.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (12, 'Tangler', 'Magical restraints entangle the target, severely limiting movement.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (13, 'Burden', 'An overwhelming weight is placed on the target, hindering progress and agility.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (14, 'Damage Health', 'Drains the target’s life force, causing health loss over time.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (15, 'Wisdom', 'Enhances the target’s insight and perception, aiding in decision-making.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (16, 'Seeking', 'Improves the target’s chances to hit by sharpening focus and aim.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (17, 'Constitution', 'Increases the target’s endurance, helping to resist fatigue and injury.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (18, 'Shield', 'Raises the target’s Armor Class by creating a temporary protective barrier.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (19, 'Dispel', 'Negates certain magical effects or suppresses ongoing spells in the area.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (20, 'Resist Shock', 'Diminishes the effect of electrical energy, reducing shock damage.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (21, 'Charisma', 'Boosts the target’s charm and persuasiveness, enhancing social interactions.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (22, 'Reflect Damage', 'A portion of damage inflicted on the target is returned to the attacker.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (23, 'Night Vision', 'Enables the target to see in darkness as if it were lit.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (24, 'Detect Life', 'Allows the target to sense nearby living creatures, even if hidden.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (25, 'Intelligence', 'Improves the target’s mental acuity and problem solving.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (26, 'Resist Frost', 'Lessens the impact of cold-based attacks and environments.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (27, 'Dexterity', 'Enhances agility and reflexes, making the target nimbler.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (28, 'Climbing', 'Grants the ability to scale surfaces with increased ease.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (29, 'Water Breathing', 'Allows the target to breathe underwater without difficulty.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (30, 'Ethereal', 'Makes the target impervious to damage but unable to inflict harm while active.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (31, 'Cure', 'Cleanses the target of ailments and toxins.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (32, 'Mind Reading', 'Grants limited insight into the thoughts of others.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (33, 'Clairvoyance', 'Enables the target to ask the DM for guidance through a mystical connection.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (34, 'Resist Fire', 'Reduces the damage taken from heat or flames.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (35, 'Water Walking', 'Allows the target to traverse water as if it were solid ground.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (36, 'Shock', 'Delivers a burst of electrical energy that can briefly stun the target.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (37, 'Resist Paralyze', 'Reduces susceptibility to paralysis or immobilizing spells.')");
-                stmt.executeUpdate("INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (38, 'Frost', 'Inflicts a chilling effect that hampers the targets movement.')");
-                //stmt.execute("CHECKPOINT");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (1, 'Paralyze', 'The target’s muscles seize up, preventing any movement for a short time.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (2, 'Light', 'The target begins to glow steadily like a torch, illuminating the area.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (3, 'Resist Poison', 'The target gains temporary resistance to toxins and poisons.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (4, 'Slow', 'The target moves sluggishly, reducing their speed and reflexes.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (5, 'Dream', 'The target is temporarily transported to a surreal dreamworld, leaving them disoriented upon return.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (6, 'Magic', 'Replenishes a spell slot, restoring a fraction of arcane energy without specifying a fixed value.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (7, 'Restore Health', 'Gradually mends wounds and revives vitality over a short period.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (8, 'Invisibility', 'The target becomes unseen, blending into the surroundings for a brief duration.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (9, 'Fire', 'Engulfs the target or weapon in flames, causing burning damage over time.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (10, 'Silence', 'A zone of silence prevents spellcasting and the verbal component of spells.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (11, 'Strength', 'Temporarily increases the target’s physical power and melee damage.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (12, 'Tangler', 'Magical restraints entangle the target, severely limiting movement.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (13, 'Burden', 'An overwhelming weight is placed on the target, hindering progress and agility.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (14, 'Damage Health', 'Drains the target’s life force, causing health loss over time.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (15, 'Wisdom', 'Enhances the target’s insight and perception, aiding in decision-making.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (16, 'Seeking', 'Improves the target’s chances to hit by sharpening focus and aim.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (17, 'Constitution', 'Increases the target’s endurance, helping to resist fatigue and injury.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (18, 'Shield', 'Raises the target’s Armor Class by creating a temporary protective barrier.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (19, 'Dispel', 'Negates certain magical effects or suppresses ongoing spells in the area.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (20, 'Resist Shock', 'Diminishes the effect of electrical energy, reducing shock damage.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (21, 'Charisma', 'Boosts the target’s charm and persuasiveness, enhancing social interactions.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (22, 'Reflect Damage', 'A portion of damage inflicted on the target is returned to the attacker.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (23, 'Night Vision', 'Enables the target to see in darkness as if it were lit.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (24, 'Detect Life', 'Allows the target to sense nearby living creatures, even if hidden.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (25, 'Intelligence', 'Improves the target’s mental acuity and problem solving.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (26, 'Resist Frost', 'Lessens the impact of cold-based attacks and environments.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (27, 'Dexterity', 'Enhances agility and reflexes, making the target nimbler.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (28, 'Climbing', 'Grants the ability to scale surfaces with increased ease.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (29, 'Water Breathing', 'Allows the target to breathe underwater without difficulty.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (30, 'Ethereal', 'Makes the target impervious to damage but unable to inflict harm while active.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (31, 'Cure', 'Cleanses the target of ailments and toxins.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (32, 'Mind Reading', 'Grants limited insight into the thoughts of others.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (33, 'Clairvoyance', 'Enables the target to ask the DM for guidance through a mystical connection.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (34, 'Resist Fire', 'Reduces the damage taken from heat or flames.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (35, 'Water Walking', 'Allows the target to traverse water as if it were solid ground.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (36, 'Shock', 'Delivers a burst of electrical energy that can briefly stun the target.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (37, 'Resist Paralyze', 'Reduces susceptibility to paralysis or immobilizing spells.')");
+                stmt.executeUpdate(
+                        "INSERT INTO EFFECTS (ID, TITLE, DESCRIPTION) VALUES (38, 'Frost', 'Inflicts a chilling effect that hampers the targets movement.')");
+                // stmt.execute("CHECKPOINT");
                 conn.commit();
                 System.out.println("Effects seeded successfully.");
-
 
                 // Insert initial ingredients.
                 stmt.executeUpdate("INSERT INTO INGREDIENTS (ID, NAME) VALUES (1, 'Alkanet Flower')");
@@ -255,7 +289,7 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENTS (ID, NAME) VALUES (120, 'Butter')");
                 System.out.println("inital ingredients seeded");
                 conn.commit();
-                //stmt.execute("CHECKPOINT");
+                // stmt.execute("CHECKPOINT");
 
                 // Insert for junction tables, players, etc. as applicable.
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (1, 1)");
@@ -356,7 +390,7 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (20, 23)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (20, 11)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (20, 2)");
-                //21-40
+                // 21-40
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (21, 26)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (21, 1)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (21, 25)");
@@ -451,9 +485,9 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (40, 26)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (40, 1)");
                 System.out.println("first 41 ingredients seeded");
-                //stmt.execute("CHECKPOINT");
+                // stmt.execute("CHECKPOINT");
 
-                //41-60
+                // 41-60
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (41, 36)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (41, 22)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (41, 25)");
@@ -549,12 +583,10 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (60, 8)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (60, 30)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (60, 32)");
-                
-                                
-                
+
                 System.out.println("first 60 ingredients seeded");
-                //stmt.execute("CHECKPOINT");
-                //61-80
+                // stmt.execute("CHECKPOINT");
+                // 61-80
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (61, 30)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (61, 28)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (61, 32)");
@@ -652,7 +684,7 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (80, 27)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (80, 18)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (80, 8)");
-                //81-100
+                // 81-100
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (81, 17)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (81, 16)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (81, 32)");
@@ -745,11 +777,11 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (100, 11)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (100, 2)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (100, 29)");
-                
+
                 System.out.println("first 100 ingredients seeded");
-                //stmt.execute("CHECKPOINT");
-                
-                //101-120:
+                // stmt.execute("CHECKPOINT");
+
+                // 101-120:
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (101, 14)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (101, 32)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (101, 27)");
@@ -843,14 +875,13 @@ public class HSQLDatabase implements IStubDatabase {
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (120, 7)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (120, 12)");
                 stmt.executeUpdate("INSERT INTO INGREDIENT_EFFECTS (INGREDIENT_ID, EFFECT_ID) VALUES (120, 23)");
-                
+
                 System.out.println("first 120 ingredients seeded");
-                //stmt.execute("CHECKPOINT");
-                
+                // stmt.execute("CHECKPOINT");
+
                 // Insert player "alex" into PLAYERS — level defaults to 1.
                 int rowsAffected = stmt.executeUpdate(
-                        "INSERT INTO PUBLIC.PLAYERS (USERNAME, PASSWORD) VALUES ('alex', 'zx7364pl')"
-                );
+                        "INSERT INTO PUBLIC.PLAYERS (USERNAME, PASSWORD) VALUES ('alex', 'zx7364pl')");
                 System.out.println("Inserted 'alex', rows affected: " + rowsAffected);
 
                 // Retrieve the generated player ID for "alex".
@@ -866,16 +897,26 @@ public class HSQLDatabase implements IStubDatabase {
                 }
 
                 // Seed starting INVENTORY for "alex" using ingredients 1–10:
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 1, 3)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 2, 3)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 3, 3)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 4, 3)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 5, 3)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 6, 3)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 7, 2)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 8, 2)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 9, 2)");
-                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId + ", 10, 2)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 1, 3)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 2, 3)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 3, 3)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 4, 3)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 5, 3)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 6, 3)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 7, 2)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 8, 2)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 9, 2)");
+                stmt.executeUpdate("INSERT INTO PUBLIC.INVENTORY (player_id, ingredient_id, quantity) VALUES (" + alexId
+                        + ", 10, 2)");
 
                 System.out.println("Player 'alex' and his starting inventory have been seeded successfully.");
 
@@ -893,42 +934,40 @@ public class HSQLDatabase implements IStubDatabase {
                     }
                 }
                 conn.commit();
-                
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-
     }
 
-
-    //old:
-    /* 
-    private Connection connection() throws SQLException {
-        String url = "jdbc:hsqldb:file:" + dbPath + ";shutdown=true";
-        return DriverManager.getConnection(url, "SA", "");
-    }
-
-    // Close the connection when finished.
-    public void close() {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    */
+    // old:
+    /*
+     * private Connection connection() throws SQLException {
+     * String url = "jdbc:hsqldb:file:" + dbPath + ";shutdown=true";
+     * return DriverManager.getConnection(url, "SA", "");
+     * }
+     * 
+     * // Close the connection when finished.
+     * public void close() {
+     * try {
+     * if (connection != null) {
+     * connection.close();
+     * }
+     * } catch (SQLException e) {
+     * e.printStackTrace();
+     * }
+     * }
+     * 
+     */
 
     ////////////////////////////////////////////////////////////////////////////////
     // TABLE CREATION
     ////////////////////////////////////////////////////////////////////////////////
 
     // Create tables in the database
-private void resetDatabaseFiles() {
+    private void resetDatabaseFiles() {
         // List of HSQLDB file extensions that may be present.
         String[] extensions = { ".script", ".properties", ".tmp", ".log" };
 
@@ -940,12 +979,9 @@ private void resetDatabaseFiles() {
         }
     }
 
-
-
-
     public void createTables() throws SQLException {
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             // Create effects table if it doesn't exist.
             String createEffectsTable = "CREATE TABLE IF NOT EXISTS PUBLIC.EFFECTS ("
                     + "id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, "
@@ -1042,8 +1078,6 @@ private void resetDatabaseFiles() {
         }
     }
 
-
-
     ////////////////////////////////////////////////////////////////////////////////
     // NEXT ID METHODS (for players)
     ////////////////////////////////////////////////////////////////////////////////
@@ -1052,8 +1086,8 @@ private void resetDatabaseFiles() {
     public int getNextPotionId() {
         String sql = "SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM potions";
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 return rs.getInt("nextId");
             }
@@ -1067,8 +1101,8 @@ private void resetDatabaseFiles() {
     public int getNextPlayerId() {
         String sql = "SELECT COALESCE(MAX(id), 0) + 1 AS nextId FROM players";
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             if (rs.next()) {
                 return rs.getInt("nextId");
             }
@@ -1078,17 +1112,15 @@ private void resetDatabaseFiles() {
         return 1;
     }
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // INGREDIENTS MANAGEMENT
     ////////////////////////////////////////////////////////////////////////////////
-
 
     @Override
     public IIngredient getIngredientByName(String name) {
         String sql = "SELECT * FROM ingredients WHERE LOWER(name) = LOWER(?)";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -1106,7 +1138,7 @@ private void resetDatabaseFiles() {
                 + "INNER JOIN ingredient_effects ie ON e.id = ie.effect_id "
                 + "WHERE ie.ingredient_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredientId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -1118,17 +1150,16 @@ private void resetDatabaseFiles() {
         return effects;
     }
 
-
-
     @Override
     public List<IIngredient> getAllIngredients() {
         List<IIngredient> ingredients = new ArrayList<>();
         String sql = "SELECT * FROM ingredients";
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                ingredients.add(new Ingredient(rs.getInt("id"), rs.getString("name"), getEffectsForIngredient(rs.getInt("id"))));
+                ingredients.add(new Ingredient(rs.getInt("id"), rs.getString("name"),
+                        getEffectsForIngredient(rs.getInt("id"))));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1144,11 +1175,11 @@ private void resetDatabaseFiles() {
     public void addPlayer(Player player) {
         String sql = "INSERT INTO PUBLIC.PLAYERS (id, username, password, level) VALUES (?, ?, ?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, player.getId());
             pstmt.setString(2, player.getUsername());
             pstmt.setString(3, player.getPassword());
-            pstmt.setInt(4, player.getLevel());  // Level is now persisted
+            pstmt.setInt(4, player.getLevel()); // Level is persisted
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1159,7 +1190,7 @@ private void resetDatabaseFiles() {
     public Player getPlayer(int playerId) {
         String sql = "SELECT * FROM PUBLIC.PLAYERS WHERE id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -1170,7 +1201,7 @@ private void resetDatabaseFiles() {
                             rs.getString("password"),
                             getPlayerInventory(playerId),
                             getKnowledgeBook(playerId),
-                            level  // Now passing the level from the DB
+                            level // Now passing the level from the DB
                     );
                 }
             }
@@ -1180,10 +1211,11 @@ private void resetDatabaseFiles() {
         }
         return null;
     }
+
     public void updatePlayerLevel(int playerId, int newLevel) {
         String sql = "UPDATE PUBLIC.PLAYERS SET level = ? WHERE id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, newLevel);
             pstmt.setInt(2, playerId);
             pstmt.executeUpdate();
@@ -1193,22 +1225,21 @@ private void resetDatabaseFiles() {
         }
     }
 
-
     @Override
     public Player getPlayerByUsername(String username) {
         String sql = "SELECT * FROM PUBLIC.PLAYERS WHERE LOWER(username) = LOWER(?)";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     int playerId = rs.getInt("id"); // Extract the player's ID
                     return new Player(
-                            playerId,                       // Player ID
-                            rs.getString("username"),       // Username
-                            rs.getString("password"),       // Password
-                            getPlayerInventory(playerId),   // Fetch player's inventory
-                            getKnowledgeBook(playerId)      // Already an IKnowledgeBook
+                            playerId, // Player ID
+                            rs.getString("username"), // Username
+                            rs.getString("password"), // Password
+                            getPlayerInventory(playerId), // Fetch player's inventory
+                            getKnowledgeBook(playerId) // Already an IKnowledgeBook
                     );
                 }
             }
@@ -1225,8 +1256,8 @@ private void resetDatabaseFiles() {
         String sql = "SELECT * FROM players";
 
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 int playerId = rs.getInt("id");
                 // Fetch player's inventory
@@ -1240,8 +1271,7 @@ private void resetDatabaseFiles() {
                         rs.getString("username"),
                         rs.getString("password"),
                         inventory,
-                        knowledgeBook
-                ));
+                        knowledgeBook));
             }
         } catch (SQLException e) {
             System.err.println("Error fetching all players");
@@ -1250,6 +1280,37 @@ private void resetDatabaseFiles() {
 
         return players;
     }
+@Override
+public void deletePlayer(int playerId) throws SQLException {
+    Connection conn = null;
+    try {
+        conn = getConnection();
+        conn.setAutoCommit(false);
+        try (Statement stmt = conn.createStatement()) {
+            // Delete from player-dependent tables.
+            // 1. Delete any inventory records for this player.
+            stmt.executeUpdate("DELETE FROM PUBLIC.INVENTORY WHERE player_id = " + playerId);
+            // 2. Delete any knowledge entries for this player.
+            stmt.executeUpdate("DELETE FROM PUBLIC.KNOWLEDGE_BOOK WHERE player_id = " + playerId);
+            // 3. Delete any potion entries for this player.
+            stmt.executeUpdate("DELETE FROM PUBLIC.PLAYER_POTIONS WHERE player_id = " + playerId);
+            // Finally, delete the player record.
+            stmt.executeUpdate("DELETE FROM PUBLIC.PLAYERS WHERE id = " + playerId);
+        }
+        conn.commit();
+    } catch (SQLException e) {
+        if (conn != null) {
+            conn.rollback();
+        }
+        throw e;
+    } finally {
+        if (conn != null) {
+            conn.setAutoCommit(true);
+            conn.close();
+        }
+    }
+}
+
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -1260,7 +1321,7 @@ private void resetDatabaseFiles() {
     public IIngredient getIngredientById(int ingredientId) {
         String sql = "SELECT id, name FROM ingredients WHERE id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredientId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -1279,7 +1340,7 @@ private void resetDatabaseFiles() {
     public void addIngredientToPlayerInventory(int playerId, IIngredient ingredient, int quantity) {
         String updateSql = "UPDATE inventory SET quantity = quantity + ? WHERE player_id = ? AND ingredient_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
+                PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
             pstmt.setInt(1, quantity);
             pstmt.setInt(2, playerId);
             pstmt.setInt(3, ingredient.getId());
@@ -1302,13 +1363,11 @@ private void resetDatabaseFiles() {
         }
     }
 
-
-
     @Override
     public void removeIngredientFromPlayerInventory(int playerId, IIngredient ingredient, int quantity) {
         String sql = "UPDATE inventory SET quantity = quantity - ? WHERE player_id = ? AND ingredient_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, quantity);
             pstmt.setInt(2, playerId);
             pstmt.setInt(3, ingredient.getId());
@@ -1324,9 +1383,6 @@ private void resetDatabaseFiles() {
         }
     }
 
-
-
-
     ////////////////////////////////////////////////////////////////////////////////
     // KNOWLEDGE BOOK MANAGEMENT
     ////////////////////////////////////////////////////////////////////////////////
@@ -1336,7 +1392,7 @@ private void resetDatabaseFiles() {
         // First, check if the knowledge entry already exists.
         String checkSql = "SELECT COUNT(*) FROM knowledge_book WHERE player_id = ? AND ingredient_id = ? AND effect_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
             checkStmt.setInt(1, playerId);
             checkStmt.setInt(2, ingredient.getId());
             checkStmt.setInt(3, effect.getId());
@@ -1356,7 +1412,7 @@ private void resetDatabaseFiles() {
         // No entry exists; perform the insert.
         String insertSql = "INSERT INTO knowledge_book (player_id, ingredient_id, effect_id) VALUES (?, ?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
             pstmt.setInt(1, playerId);
             pstmt.setInt(2, ingredient.getId());
             pstmt.setInt(3, effect.getId());
@@ -1366,13 +1422,12 @@ private void resetDatabaseFiles() {
         }
     }
 
-
     public void updateKnowledgeBook(int playerId, IIngredient ingredient) {
         String checkSql = "SELECT COUNT(*) FROM knowledge_book WHERE player_id = ? AND ingredient_id = ? AND effect_id = ?";
         String insertSql = "INSERT INTO knowledge_book (player_id, ingredient_id, effect_id) VALUES (?, ?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-             PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+                PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
             for (IEffect effect : ingredient.getEffects()) {
                 if (effect != null) {
                     // Check if the effect already exists
@@ -1401,7 +1456,7 @@ private void resetDatabaseFiles() {
     }
 
     @Override
-    public IKnowledgeBook getKnowledgeBook(int playerId)  {
+    public IKnowledgeBook getKnowledgeBook(int playerId) {
         Map<Integer, List<IEffect>> knowledgeBook = new HashMap<>();
         String sql = "SELECT i.id AS ingredient_id, e.id AS effect_id, e.title AS effect_title, " +
                 "e.description AS effect_description " +
@@ -1411,7 +1466,7 @@ private void resetDatabaseFiles() {
                 "WHERE kb.player_id = ?";
 
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -1421,8 +1476,7 @@ private void resetDatabaseFiles() {
                     IEffect effect = new Effect(
                             rs.getInt("effect_id"),
                             rs.getString("effect_title"),
-                            rs.getString("effect_description")
-                    );
+                            rs.getString("effect_description"));
 
                     knowledgeBook.computeIfAbsent(ingredientId, k -> new ArrayList<>()).add(effect);
                 }
@@ -1436,41 +1490,36 @@ private void resetDatabaseFiles() {
         return new KnowledgeBook(knowledgeBook);
     }
 
-
-
     @Override
     public IInventory getPlayerInventory(int playerId) {
         IInventory inventory = new Inventory();
 
         // SQL query to load ingredients with their effects.
-        String sqlIngredients =
-                "SELECT i.id AS ingredient_id, i.name AS ingredient_name, " +
-                        "pi.quantity AS quantity, " +
-                        "e.id AS effect_id, e.title AS effect_title, e.description AS effect_description " +
-                        "FROM inventory pi " +
-                        "INNER JOIN ingredients i ON pi.ingredient_id = i.id " +
-                        "LEFT JOIN ingredient_effects ie ON i.id = ie.ingredient_id " +
-                        "LEFT JOIN effects e ON ie.effect_id = e.id " +
-                        "WHERE pi.player_id = ?";
+        String sqlIngredients = "SELECT i.id AS ingredient_id, i.name AS ingredient_name, " +
+                "pi.quantity AS quantity, " +
+                "e.id AS effect_id, e.title AS effect_title, e.description AS effect_description " +
+                "FROM inventory pi " +
+                "INNER JOIN ingredients i ON pi.ingredient_id = i.id " +
+                "LEFT JOIN ingredient_effects ie ON i.id = ie.ingredient_id " +
+                "LEFT JOIN effects e ON ie.effect_id = e.id " +
+                "WHERE pi.player_id = ?";
 
         // SQL query to load potions with their composition and effects.
-        String sqlPotions =
-                "SELECT p.id AS potion_id, p.name AS potion_name, pp.quantity AS quantity, "
-                        + "p.duration AS potion_duration, p.brew_level AS brew_level, p.bonus_dice AS bonus_dice, "
-                        + "e.id AS effect_id, e.title AS effect_title, e.description AS effect_description, "
-                        + "i1.id AS ingredient1_id, i1.name AS ingredient1_name, "
-                        + "i2.id AS ingredient2_id, i2.name AS ingredient2_name, "
-                        + "p.description AS potion_description "
-                        + "FROM PUBLIC.PLAYER_POTIONS pp "
-                        + "INNER JOIN PUBLIC.POTIONS p ON pp.potion_id = p.id "
-                        + "LEFT JOIN PUBLIC.POTION_EFFECTS pe ON p.id = pe.potion_id "
-                        + "LEFT JOIN PUBLIC.EFFECTS e ON pe.effect_id = e.id "
-                        + "LEFT JOIN PUBLIC.INGREDIENTS i1 ON p.ingredient1_id = i1.id "
-                        + "LEFT JOIN PUBLIC.INGREDIENTS i2 ON p.ingredient2_id = i2.id "
-                        + "WHERE pp.player_id = ?";
+        String sqlPotions = "SELECT p.id AS potion_id, p.name AS potion_name, pp.quantity AS quantity, "
+                + "p.duration AS potion_duration, p.brew_level AS brew_level, p.bonus_dice AS bonus_dice, "
+                + "e.id AS effect_id, e.title AS effect_title, e.description AS effect_description, "
+                + "i1.id AS ingredient1_id, i1.name AS ingredient1_name, "
+                + "i2.id AS ingredient2_id, i2.name AS ingredient2_name, "
+                + "p.description AS potion_description "
+                + "FROM PUBLIC.PLAYER_POTIONS pp "
+                + "INNER JOIN PUBLIC.POTIONS p ON pp.potion_id = p.id "
+                + "LEFT JOIN PUBLIC.POTION_EFFECTS pe ON p.id = pe.potion_id "
+                + "LEFT JOIN PUBLIC.EFFECTS e ON pe.effect_id = e.id "
+                + "LEFT JOIN PUBLIC.INGREDIENTS i1 ON p.ingredient1_id = i1.id "
+                + "LEFT JOIN PUBLIC.INGREDIENTS i2 ON p.ingredient2_id = i2.id "
+                + "WHERE pp.player_id = ?";
 
         System.out.println("DEBUG: SQL Query: " + sqlPotions);
-
 
         try (Connection conn = getConnection()) {
             // --------------------------------------------------------
@@ -1486,7 +1535,8 @@ private void resetDatabaseFiles() {
             while (rsIng.next()) {
                 int ingredientId = rsIng.getInt("ingredient_id");
                 String ingredientName = rsIng.getString("ingredient_name");
-                int quantity = rsIng.getInt("quantity"); // Quantity should be the same in each row for the same ingredient
+                int quantity = rsIng.getInt("quantity"); // Quantity should be the same in each row for the same
+                                                         // ingredient
 
                 // Get the existing AggregatedIngredient (if any) or create a new one.
                 AggregatedIngredient agg = ingredientMap.get(ingredientId);
@@ -1542,7 +1592,9 @@ private void resetDatabaseFiles() {
                 aggPotion.brewLevel = rsPot.getInt("brew_level");
                 aggPotion.description = rsPot.getString("potion_description");
                 aggPotion.bonusDice = rsPot.getString("bonus_dice");
-                System.out.println("DEBUG: Found potion row - ID: " + potionId + ", Name: " + potionName + ", Quantity: " + quantity + " aggPotionDuration:"+ aggPotion.duration + " dice: "+ aggPotion.bonusDice);
+                System.out.println("DEBUG: Found potion row - ID: " + potionId + ", Name: " + potionName
+                        + ", Quantity: " + quantity + " aggPotionDuration:" + aggPotion.duration + " dice: "
+                        + aggPotion.bonusDice);
 
                 // Process effect information for the potion.
                 int effectId = rsPot.getInt("effect_id");
@@ -1571,7 +1623,7 @@ private void resetDatabaseFiles() {
             rsPot.close();
             pstmtPotions.close();
 
-// Add each aggregated potion to the inventory.
+            // Add each aggregated potion to the inventory.
             for (AggregatedPotion aggPotion : potionMap.values()) {
                 IPotion potion = new Potion(
                         aggPotion.id,
@@ -1581,8 +1633,7 @@ private void resetDatabaseFiles() {
                         aggPotion.ingredient2,
                         aggPotion.duration,
                         aggPotion.description,
-                        aggPotion.bonusDice
-                );
+                        aggPotion.bonusDice);
                 potion.setBrewLevel(aggPotion.brewLevel);
                 inventory.addPotion(potion, aggPotion.quantity);
 
@@ -1597,28 +1648,30 @@ private void resetDatabaseFiles() {
         return inventory;
     }
 
-    //potions:
+    // potions:
     @Override
     public void addPotionToPlayerInventory(int playerId, Potion potion, int quantity) {
         String sql = "INSERT INTO PUBLIC.PLAYER_POTIONS (player_id, potion_id, quantity) VALUES (?, ?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
             pstmt.setInt(2, potion.getId());
             pstmt.setInt(3, quantity);
             int rowsAffected = pstmt.executeUpdate();
             conn.commit(); // Commit the transaction explicitly if auto-commit is off
-            System.out.println("DEBUG: Inserted potion row for player " + playerId + ", potion ID " + potion.getId() + ", rows affected: " + rowsAffected +"  with brewlevel: "+ potion.getBrewLevel());
+            System.out.println("DEBUG: Inserted potion row for player " + playerId + ", potion ID " + potion.getId()
+                    + ", rows affected: " + rowsAffected + "  with brewlevel: " + potion.getBrewLevel());
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     @Override
     public void addPotion(Potion potion) {
         // Updated SQL statement to include duration and brew_level.
         String sqlPotion = "INSERT INTO PUBLIC.POTIONS (id, name, ingredient1_id, ingredient2_id, description, duration, brew_level, bonus_dice) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sqlPotion)) {
+                PreparedStatement pstmt = conn.prepareStatement(sqlPotion)) {
             pstmt.setInt(1, potion.getId());
             pstmt.setString(2, potion.getName());
             if (potion.getIngredient1() != null) {
@@ -1636,9 +1689,9 @@ private void resetDatabaseFiles() {
             } else {
                 pstmt.setNull(5, java.sql.Types.VARCHAR);
             }
-            pstmt.setDouble(6, potion.getDuration());      // Duration value
-            pstmt.setInt(7, potion.getBrewLevel());          // Brew level
-            pstmt.setString(8, potion.getBonusDice());       // Bonus dice
+            pstmt.setDouble(6, potion.getDuration()); // Duration value
+            pstmt.setInt(7, potion.getBrewLevel()); // Brew level
+            pstmt.setString(8, potion.getBonusDice()); // Bonus dice
 
             pstmt.executeUpdate();
             conn.commit();
@@ -1647,28 +1700,27 @@ private void resetDatabaseFiles() {
             e.printStackTrace();
         }
 
-
         // Insert each effect into the POTION_EFFECTS table.
         String sqlEffects = "INSERT INTO PUBLIC.POTION_EFFECTS (potion_id, effect_id) VALUES (?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement pstmtEffects = conn.prepareStatement(sqlEffects)) {
+                PreparedStatement pstmtEffects = conn.prepareStatement(sqlEffects)) {
             for (IEffect effect : potion.getEffects()) {
                 pstmtEffects.setInt(1, potion.getId());
                 pstmtEffects.setInt(2, effect.getId());
                 pstmtEffects.executeUpdate();
             }
             conn.commit();
-            System.out.println("DEBUG: Inserted " + potion.getEffects().size() + " effect(s) for potion: " + potion.getName());
+            System.out.println(
+                    "DEBUG: Inserted " + potion.getEffects().size() + " effect(s) for potion: " + potion.getName());
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-
     public void debugPlayerPotions(int playerId) {
         String sql = "SELECT * FROM PUBLIC.PLAYER_POTIONS WHERE player_id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, playerId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 System.out.println("DEBUG: PLAYER_POTIONS rows for player ID " + playerId + ":");
@@ -1683,46 +1735,45 @@ private void resetDatabaseFiles() {
         }
     }
 
-
-
     @Override
-public void removePotionFromPlayerInventory(int playerId, Potion potion, int quantity) {
-    // First, attempt to update the quantity.
-    String sqlUpdate = "UPDATE player_potions SET quantity = quantity - ? "
-            + "WHERE player_id = ? AND potion_id = ?";
-    try (Connection conn = getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
-        pstmt.setInt(1, quantity);
-        pstmt.setInt(2, playerId);
-        pstmt.setInt(3, potion.getId());
-        int rowsAffected = pstmt.executeUpdate();
+    public void removePotionFromPlayerInventory(int playerId, Potion potion, int quantity) {
+        // First, attempt to update the quantity.
+        String sqlUpdate = "UPDATE player_potions SET quantity = quantity - ? "
+                + "WHERE player_id = ? AND potion_id = ?";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sqlUpdate)) {
+            pstmt.setInt(1, quantity);
+            pstmt.setInt(2, playerId);
+            pstmt.setInt(3, potion.getId());
+            int rowsAffected = pstmt.executeUpdate();
 
-        // If no rows were updated, it may be that the player doesn't yet have this potion,
-        // or the quantity is insufficient. Handle accordingly.
-        if (rowsAffected == 0) {
-            System.err.println("No potion entry found for removal, or insufficient quantity.");
+            // If no rows were updated, it may be that the player doesn't yet have this
+            // potion,
+            // or the quantity is insufficient. Handle accordingly.
+            if (rowsAffected == 0) {
+                System.err.println("No potion entry found for removal, or insufficient quantity.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error removing potion from inventory for player ID: " + playerId);
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.err.println("Error removing potion from inventory for player ID: " + playerId);
-        e.printStackTrace();
-    }
 
-    // Optionally, you might want to delete the row if quantity has reached zero.
-    String sqlDelete = "DELETE FROM player_potions WHERE player_id = ? AND potion_id = ? AND quantity <= 0";
-    try (Connection conn = getConnection();
-         PreparedStatement pstmt = conn.prepareStatement(sqlDelete)) {
-        pstmt.setInt(1, playerId);
-        pstmt.setInt(2, potion.getId());
-        pstmt.executeUpdate();
-    } catch (SQLException e) {
-        System.err.println("Error cleaning up potion inventory for player ID: " + playerId);
-        e.printStackTrace();
+        // Optionally, you might want to delete the row if quantity has reached zero.
+        String sqlDelete = "DELETE FROM player_potions WHERE player_id = ? AND potion_id = ? AND quantity <= 0";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sqlDelete)) {
+            pstmt.setInt(1, playerId);
+            pstmt.setInt(2, potion.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error cleaning up potion inventory for player ID: " + playerId);
+            e.printStackTrace();
+        }
     }
-}
 
     public void deleteAllData() throws SQLException {
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DELETE FROM knowledge_book");
             stmt.executeUpdate("DELETE FROM inventory");
             stmt.executeUpdate("DELETE FROM potions");
@@ -1732,34 +1783,36 @@ public void removePotionFromPlayerInventory(int playerId, Potion potion, int qua
             stmt.executeUpdate("DELETE FROM players");
         }
     }
+
     public void logAllPlayers() {
         String sql = "SELECT * FROM players";
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 int id = rs.getInt("id");
                 String username = rs.getString("username");
-                // Use System.out or a custom logger for compatibility with non-Android environments
+                // Use System.out or a custom logger for compatibility with non-Android
+                // environments
                 System.out.println("Player found: id=" + id + ", username=" + username);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-////////////////////////////////////////////
-    //dummies for testing
-    ///////////////////
-@Override
-public void addIngredient(IIngredient ingWithShared1) {
 
-}
+    ////////////////////////////////////////////
+    // dummies for testing
+    ///////////////////
+    @Override
+    public void addIngredient(IIngredient ingWithShared1) {
+
+    }
 
     @Override
     public void addEffect(IEffect uniqueEffect2) {
 
     }
-
 
     // Helper class to aggregate ingredient rows.
     private static class AggregatedIngredient {
