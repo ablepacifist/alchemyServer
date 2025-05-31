@@ -8,24 +8,40 @@ The project is organized as follows:
 
 ```
 AlchemyServer/
-├── README.md              # Documentation
-├── Makefile               # Build automation script
-├── Main.java              # The main entry point of the program
-├── data/                  # Database management classes
-│   ├── HSQLDatabase.java  # Handles database initialization
-│   ├── IStubDatabase.java # Database interaction interface
-├── object/                # Domain objects (game entities)
-│   ├── Player.java
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions CI pipeline configuration
+├── alchemydb.log               # Log file for the HSQLDB database
+├── alchemydb.properties        # Database properties file
+├── alchemydb.script            # Database script file (created at runtime)
+├── alchemydb.tmp               # Temporary database file(s)
+├── data/                      # Database management classes
+│   ├── HSQLDatabase.java       # Handles database initialization, seeding, etc.
+│   └── IStubDatabase.java      # Database interaction interface
+├── lib/                       # External libraries (e.g., hsqldb.jar, junit, HikariCP, slf4j, etc.)
+├── logic/                     # Game logic classes
+│   ├── PlayerManager.java
+│   └── PotionManager.java
+├── object/                    # Domain objects (game entities)
+│   ├── Effect.java
 │   ├── Ingredient.java
 │   ├── Inventory.java
 │   ├── KnowledgeBook.java
-│   ├── Effect.java
-├── lib/                   # External libraries
-│   └── hsqldb.jar         # HSQLDB library
-├── alchemydb.*            # Database files created at runtime (e.g., alchemydb.script, alchemydb.properties)
+│   └── Player.java
+├── test/                      # Test source files
+│   ├── DummyDatabase.java     # A dummy database implementation for unit tests
+│   ├── GameManagerTest.java
+│   ├── InventoryTest.java
+│   ├── PlayerManagerTest.java
+│   ├── PotionManagerTest.java
+│   ├── TestSuite.java         # Aggregates all unit tests
+│   └── integration/           # Integration test source files using a real HSQLDB instance
+│       └── RealDatabaseIntegrationTest.java
+├── Main.java                  # The main entry point of the program
+└── Makefile                   # Build automation script
 ```
 
-*Note: The relative paths ensure portability. All files and folders reside in the project root or relative to it.*
+*Note: All JAR files (JUnit, HSQLDB, HikariCP, SLF4J, etc.) are located in the `lib/` folder.*
 
 ## How to Compile and Run
 
@@ -34,16 +50,16 @@ Use the Makefile to compile the source files and output the class files into the
 ```bash
 make compile
 ```
-This command creates the `bin/` folder (if it doesn't exist) and compiles all the Java source files.
+This command creates the `bin/` folder (if it doesn’t exist) and compiles all the Java source files.
 
 ### 2. Start the Database Server
 Start the HSQLDB server using:
 ```bash
 make start-server
 ```
-This command launches the server using a relative path (`alchemydb`) for the database file. It will create the necessary database files (alchemydb.script, etc.) in your project root.
+This command launches the server using a relative path (`alchemydb`) for the database file. It will create the necessary database files (e.g., `alchemydb.script`, etc.) in your project root.
 
-If you prefer to start the server manually, use:
+If you prefer to start the server manually, run:
 ```bash
 java -cp lib/hsqldb.jar org.hsqldb.Server --database.0 file:alchemydb --dbname.0 mydb
 ```
@@ -56,11 +72,11 @@ make run
 This command waits a few seconds to ensure the server has initialized and then runs `Main`.
 
 ### 4. Stop the Server
-When you’re done, you can stop the server using:
+To stop the HSQLDB server:
 ```bash
 make stop-server
 ```
-This command finds the HSQLDB server process by its name and kills it gracefully.
+This command finds the HSQLDB server process by its name and terminates it gracefully.
 
 ### 5. Clean Up Build Files
 To remove the compiled class files:
@@ -69,33 +85,90 @@ make clean
 ```
 This deletes the `bin/` folder, keeping your project directory clean.
 
+---
 
+## Automated Testing
 
-## 🖥️ Using the HSQLDB GUI (Database Manager)
+### Running Unit Tests
 
-HSQLDB includes a built-in graphical tool called **DatabaseManagerSwing**, which allows you to view tables and run SQL queries.
+Unit tests are located in the `test/` folder and are compiled into the `test_bin/` directory. To compile and run the unit test suite, execute:
 
-### **Steps to Launch the GUI**
+1. **Compile the test files:**
+   ```bash
+   make compile-tests
+   ```
+2. **Run the test suite:**
+   ```bash
+   make test
+   ```
+The target `test` in the Makefile compiles the tests and runs the `TestSuite` class (which aggregates your unit tests).
+
+### Running Integration Tests
+
+Integration tests use a real HSQLDB instance and are located under `test/integration/`. They verify complete flows such as inventory operations, potion brewing, and player deletion.
+
+Before running integration tests, ensure that:
+- The HSQLDB server is running (you can start it using `make start-server`).
+- The seeded data (ingredients, effects, etc.) is loaded.
+
+To run integration tests:
+
+1. **Compile integration test files:**
+   ```bash
+   make integration-compile
+   ```
+2. **Run the integration test suite:**
+   ```bash
+   make integration-test
+   ```
+   This command compiles (if necessary) and runs the `RealDatabaseIntegrationTest` class using JUnit.
+3. **Clean up integration test artifacts (if needed):**
+   ```bash
+   make integration-clean
+   ```
+
+---
+
+## CI Pipeline with GitHub Actions
+
+A CI pipeline is set up to run on push or pull requests (as defined in `.github/workflows/ci.yml`). The pipeline:
+- Checks out the repository.
+- Sets up JDK 11.
+- Compiles the main code and unit tests.
+- Runs unit tests.
+- Starts the HSQLDB server.
+- Runs integration tests.
+- Stops the database server.
+- Cleans up build artifacts.
+
+See the Actions tab in your repository to monitor CI runs.
+
+---
+
+## Using the HSQLDB GUI (Database Manager)
+
+HSQLDB includes a GUI tool called **DatabaseManagerSwing** for viewing tables and running SQL queries.
+
+### Launching the GUI
 Run the following command in your project directory:
 ```bash
 java -cp lib/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing
 ```
-This will open the **Database Manager** window.
 
-### **Connecting to Your Database**
-Once the GUI is open:
+### Connecting to the Database
+When the GUI opens:
 1. **Driver:** Select `HSQL Database Engine Server`
 2. **URL:** `jdbc:hsqldb:hsql://localhost:9001/mydb`
 3. **User:** `SA`
 4. **Password:** *(leave empty)*
 5. Click **Connect**
 
-### **Running SQL Queries**
-Once connected, you can execute queries such as:
+### Running SQL Queries
+Example queries:
 ```sql
 SELECT * FROM PLAYERS;
 ```
-To check which tables exist:
+To list all tables:
 ```sql
 SELECT * FROM INFORMATION_SCHEMA.TABLES;
 ```
@@ -104,18 +177,18 @@ To shut down the database manually:
 SHUTDOWN;
 ```
 
+---
+
 ## Troubleshooting
 
 - **Server Startup Errors (e.g., Address already in use):**  
-  Run `make stop-server` to ensure no other HSQLDB server is running, or check for processes using port 9001 with:
+  Run `make stop-server` to terminate any running HSQLDB processes, or check port 9001 with:
   ```bash
   netstat -tulnp | grep 9001
   ```
 
 - **"User lacks privilege or object not found" Errors:**  
-  Verify that the `createTables()` method in `HSQLDatabase.java` correctly initializes all tables. If needed, delete the existing database files (alchemydb.*) and run the server/compiled program again.
+  Ensure `HSQLDatabase.java` correctly creates all tables. If necessary, delete existing database files (`alchemydb.*`) and restart.
 
-- **Compilation Issues Related to Folder Structure:**  
-  Ensure that all your object classes are in the `object/` folder and that the imports in your code match this structure.
-
----
+- **Compilation Issues:**  
+  Verify that file paths and package declarations match the folder structure. All external libraries are in the `lib/` folder.
