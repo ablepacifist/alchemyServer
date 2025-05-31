@@ -1,0 +1,55 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Display Java version
+        run: java -version
+
+      - name: Compile main code
+        run: make compile
+
+      - name: Compile tests
+        run: make compile-tests
+
+      - name: Run unit tests
+        run: make test
+
+      # Start the database server for integration tests.
+      - name: Start HSQLDB server
+        run: |
+          echo "Starting HSQLDB Server..."
+          make start-server &
+          echo "Waiting for the database to fully initialize..."
+          sleep 10
+
+      - name: Run integration tests
+        run: make integration-test
+
+      - name: Stop HSQLDB server
+        run: make stop-server
+
+      - name: Clean up build artifacts
+        run: make clean clean-tests integration-clean
