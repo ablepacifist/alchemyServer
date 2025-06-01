@@ -1,18 +1,21 @@
-package logic;
+package alchemy.logic;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import data.IStubDatabase;
-import object.IIngredient;
-import object.IEffect;
-import object.IInventory;
-import object.Inventory;
-import object.Player;
-import object.Potion;
+import alchemy.data.IStubDatabase;
+import alchemy.object.IIngredient;
+import alchemy.object.IEffect;
+import alchemy.object.IInventory;
+import alchemy.object.Inventory;
+import alchemy.object.Player;
+import alchemy.object.Potion;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class PotionManager {
     private final IStubDatabase db;
 

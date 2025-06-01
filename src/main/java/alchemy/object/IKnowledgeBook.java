@@ -1,7 +1,7 @@
-package object;
+package alchemy.object;
 
-import object.IIngredient;
-import object.IEffect;
+import alchemy.object.IIngredient;
+import alchemy.object.IEffect;
 
 import java.util.List;
 import java.util.Map;

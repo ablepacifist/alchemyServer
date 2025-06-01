@@ -1,23 +1,29 @@
-package logic;
+package alchemy.logic;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import data.IStubDatabase;
-import object.Inventory;
-import object.IIngredient;
-import object.IInventory;
-import object.IKnowledgeBook;
-import object.IEffect;
-import object.IPotion;
-import object.KnowledgeBook;
-import object.Player;
-import object.Potion;
+import alchemy.data.IStubDatabase;
+import alchemy.object.Inventory;
+import alchemy.object.IIngredient;
+import alchemy.object.IInventory;
+import alchemy.object.IKnowledgeBook;
+import alchemy.object.IEffect;
+import alchemy.object.IPotion;
+import alchemy.object.KnowledgeBook;
+import alchemy.object.Player;
+import alchemy.object.Potion;
 
-public class PlayerManager {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+@Component
+public class PlayerManager  implements PlayerManagerService{
     private final IStubDatabase db;
 
+    @Autowired
     public PlayerManager(IStubDatabase db) {
         this.db = db;
     }
@@ -188,4 +194,11 @@ public class PlayerManager {
         }
         return false;
     }
+
+    
+    @Override
+    public List<Player> getAllPlayers() {
+        return (List<Player>) db.getAllPlayers();
+    }
+
 }

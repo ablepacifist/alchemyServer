@@ -1,11 +1,12 @@
-package logic;
+package alchemy.logic;
 
-import data.IStubDatabase;
-
+import alchemy.data.IStubDatabase;
+import org.springframework.stereotype.Service;
 /**
  * New GameManager implementation that doesn’t depend on any application-level classes.
  * It must be initialized with an IStubDatabase instance.
  */
+@Service
 public class GameManager implements GameManagerService {
     
     // Singleton instance; you may change this pattern if you prefer another DI method.

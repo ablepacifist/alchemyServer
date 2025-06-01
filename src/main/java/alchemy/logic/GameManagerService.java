@@ -1,7 +1,7 @@
-package logic;
+package alchemy.logic;
 
 
-import logic.PlayerManager;
+import alchemy.logic.PlayerManager;
 
 public interface GameManagerService {
 

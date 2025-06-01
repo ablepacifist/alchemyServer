@@ -1,27 +1,63 @@
-package logic;
+package alchemy.logic;
 
 
 import java.util.Collection;
+import java.util.List;
 
-import object.IIngredient;
-import object.IInventory;
-import object.IKnowledgeBook;
-import object.IPotion;
-import object.Player;
-import object.Potion;
+import alchemy.object.IIngredient;
+import alchemy.object.IInventory;
+import alchemy.object.IKnowledgeBook;
+import alchemy.object.IPotion;
+import alchemy.object.Player;
+import alchemy.object.Potion;
 
 /**
  * The PlayerManagerService interface declares operations related to player management
  * including player creation, login, inventory manipulation, knowledge updates,
  * and potion brewing/consumption.
  */
+
+import alchemy.object.IIngredient;
+import alchemy.object.IInventory;
+import alchemy.object.IKnowledgeBook;
+import alchemy.object.IPotion;
+import alchemy.object.Player;
+
 public interface PlayerManagerService {
 
     /**
-     * Retrieves a player by their unique id.
+     * Logins a player by verifying the username and password.
      *
-     * @param playerId the player's id
-     * @return the Player, or null if not found
+     * @param username the player's username
+     * @param password the player's password
+     * @return the Player if successfully authenticated
+     * @throws IllegalArgumentException if login fails
+     */
+    Player loginPlayer(String username, String password);
+
+    /**
+     * Registers a new player after checking the password confirmation.
+     *
+     * @param username       the player's username
+     * @param password       the player's password
+     * @param confirmPassword confirmation of the password
+     * @throws IllegalArgumentException if passwords do not match or username is taken
+     */
+    void registerPlayer(String username, String password, String confirmPassword);
+
+    /**
+     * Creates a new player.
+     *
+     * @param username the player's username
+     * @param password the player's password
+     */
+    void createPlayer(String username, String password);
+
+    /**
+     * Retrieves a player by their unique ID.
+     *
+     * @param playerId the player's ID
+     * @return the Player
      */
     Player getPlayerById(int playerId);
 
@@ -29,112 +65,59 @@ public interface PlayerManagerService {
      * Retrieves a player by their username.
      *
      * @param username the player's username
-     * @return the Player object, or null if not found
+     * @return the Player
      */
     Player getPlayerByUsername(String username);
 
     /**
-     * Retrieves all players.
+     * Retrieves the inventory of the player.
      *
-     * @return a collection of all players
-     */
-    Collection<Player> getAllPlayers();
-
-    /**
-     * Creates a new player with an empty inventory and knowledge book.
-     *
-     * @param username the new player's username
-     * @param password the new player's password
-     */
-    void createPlayer(String username, String password);
-
-    /**
-     * Registers a new player. If the username is already taken, the call may simply return.
-     *
-     * @param username the new player's username
-     * @param password the new player's password
-     */
-    void registerPlayer(String username, String password);
-
-    /**
-     * Logins a player with the supplied credentials.
-     *
-     * @param username the username
-     * @param password the password
-     * @return the Player if credentials are valid; otherwise, null
-     */
-    Player loginPlayer(String username, String password);
-
-    /**
-     * Adds a specified quantity of an ingredient to a player's inventory.
-     *
-     * @param playerId   the player's id
-     * @param ingredient the ingredient to add
-     * @param quantity   the quantity to add
-     */
-    void addIngredientToPlayer(int playerId, IIngredient ingredient, int quantity);
-
-    /**
-     * Removes a specified quantity of an ingredient from a player's inventory.
-     *
-     * @param playerId   the player's id
-     * @param ingredient the ingredient to remove
-     * @param quantity   the quantity to remove
-     */
-    void removeIngredientFromPlayer(int playerId, IIngredient ingredient, int quantity);
-
-    /**
-     * Performs a forage action: randomly selects an ingredient from the master list and
-     * adds one unit of it to the player's inventory.
-     *
-     * @param playerId the player's id
-     * @return the name of the foraged ingredient, or an empty string if none available
-     */
-    String forage(int playerId);
-
-    /**
-     * Retrieves the player's inventory.
-     *
-     * @param playerId the player's id
+     * @param playerId the player's ID
      * @return the player's inventory
      */
     IInventory getInventory(int playerId);
 
     /**
-     * Retrieves the player's knowledge book.
+     * Retrieves the knowledge book of the player.
      *
-     * @param playerId the player's id
-     * @return the player's knowledge book
+     * @param playerId the player's ID
+     * @return the knowledge book
      */
     IKnowledgeBook getKnowledgeBook(int playerId);
 
     /**
-     * Brews a potion by combining two ingredients from the player's inventory. If the two
-     * ingredients share at least one effect, a new potion is created and added to the player's
-     * potion inventory. One unit of each ingredient is removed.
+     * Performs a forage operation and returns the name of the foraged ingredient.
      *
-     * @param playerId   the player's id
-     * @param ingredient1 the first ingredient
-     * @param ingredient2 the second ingredient
-     * @return the newly brewed Potion if successful; otherwise, null
+     * @param playerId the player's ID
+     * @return the name of the foraged ingredient or an empty string if none available
      */
-    Potion brewPotion(int playerId, IIngredient ingredient1, IIngredient ingredient2);
+    String forage(int playerId);
 
     /**
-     * Consumes a potion by removing one unit of it from the player's inventory.
+     * Consumes one unit of the specified ingredient from the player's inventory.
      *
-     * @param playerId the player's id
+     * @param playerId   the player's ID
+     * @param ingredient the ingredient to consume
+     */
+    void consumeIngredient(int playerId, IIngredient ingredient);
+
+    /**
+     * Consumes one unit of the specified potion from the player's inventory.
+     *
+     * @param playerId the player's ID
      * @param potion   the potion to consume
      */
     void consumePotion(int playerId, IPotion potion);
 
     /**
-     * Consumes an ingredient by removing one unit from the player's inventory. If there is any
-     * master effect for that ingredient that the player has not learned yet, one such effect is
-     * added to the player's knowledge book.
+     * Levels up the player if the secret password is correct.
      *
-     * @param playerId   the player's id
-     * @param ingredient the ingredient to consume
+     * @param player         the player to level up
+     * @param secretPassword the secret password required for leveling up
+     * @return true if the player leveled up, false otherwise
+     * @throws IllegalArgumentException if the secret password is incorrect
      */
-    void consumeIngredient(int playerId, IIngredient ingredient);
+    boolean levelUpPlayer(Player player, String secretPassword);
+
+    List<Player> getAllPlayers();
 }

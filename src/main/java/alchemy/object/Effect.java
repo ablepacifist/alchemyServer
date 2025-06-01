@@ -1,4 +1,4 @@
-package object;
+package alchemy.object;
 
 import java.io.Serializable;
 import java.util.Objects;

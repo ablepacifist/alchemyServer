@@ -1,4 +1,4 @@
-package data;
+package alchemy.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,21 +8,25 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-import object.Inventory;
-import object.KnowledgeBook;
-import object.Effect;
-import object.IEffect;
-import object.IIngredient;
-import object.IInventory;
-import object.IKnowledgeBook;
-import object.IPotion;
-import object.Ingredient;
-import object.Player;
-import object.Potion;
+import alchemy.object.Inventory;
+import alchemy.object.KnowledgeBook;
+import alchemy.object.Effect;
+import alchemy.object.IEffect;
+import alchemy.object.IIngredient;
+import alchemy.object.IInventory;
+import alchemy.object.IKnowledgeBook;
+import alchemy.object.IPotion;
+import alchemy.object.Ingredient;
+import alchemy.object.Player;
+import alchemy.object.Potion;
 
+@Repository
 public class HSQLDatabase implements IStubDatabase {
 
     private final String dbPath;
@@ -1281,6 +1285,8 @@ public class HSQLDatabase implements IStubDatabase {
 
         return players;
     }
+
+    
 @Override
 public void deletePlayer(int playerId) throws SQLException {
     Connection conn = null;

@@ -176,19 +176,3 @@ To shut down the database manually:
 ```sql
 SHUTDOWN;
 ```
-
----
-
-## Troubleshooting
-
-- **Server Startup Errors (e.g., Address already in use):**  
-  Run `make stop-server` to terminate any running HSQLDB processes, or check port 9001 with:
-  ```bash
-  netstat -tulnp | grep 9001
-  ```
-
-- **"User lacks privilege or object not found" Errors:**  
-  Ensure `HSQLDatabase.java` correctly creates all tables. If necessary, delete existing database files (`alchemydb.*`) and restart.
-
-- **Compilation Issues:**  
-  Verify that file paths and package declarations match the folder structure. All external libraries are in the `lib/` folder.

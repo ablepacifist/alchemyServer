@@ -1,5 +1,5 @@
 package alchemy;
-
+ 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,14 +9,19 @@ public class Main {
         SpringApplication.run(Main.class, args);
     }
 }
-
-
-
-
+//
 /* 
+
+import alchemy.data.HSQLDatabase;
+import alchemy.data.IStubDatabase;
+import alchemy.logic.GameManager;
+import alchemy.logic.PlayerManager;
+import alchemy.logic.PotionManager;
+import alchemy.object.Player;
+
 public class Main {
     // Optional: A logger for application-wide messages.
-    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+    //private static final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         IStubDatabase db = null;
@@ -37,7 +42,7 @@ public class Main {
             // For instance, register a player; if the username already exists, you'll receive an error.
             playerManager.registerPlayer("testUser", "testPass", "testPass");
         } catch (IllegalArgumentException ex) {
-            logger.error("Registration error: {}", ex.getMessage());
+            //logger.error("Registration error: {}", ex.getMessage());
         }
 
         try {
@@ -53,4 +58,4 @@ public class Main {
 }
 
 
-*/
+ */

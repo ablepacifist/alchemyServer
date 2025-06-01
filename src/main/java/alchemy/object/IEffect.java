@@ -1,4 +1,4 @@
-package object;
+package alchemy.object;
 public interface IEffect {
     /**
      * Gets the unique identifier of the effect.

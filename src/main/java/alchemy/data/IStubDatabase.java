@@ -1,16 +1,16 @@
-package data;
+package alchemy.data;
 
 import java.util.List;
 import java.util.Map;
 import java.sql.SQLException;
 import java.util.Collection; 
 
-import object.IEffect;
-import object.IIngredient;
-import object.IInventory;
-import object.IKnowledgeBook;
-import object.Player;
-import object.Potion;
+import  alchemy.object.IEffect;
+import  alchemy.object.IIngredient;
+import  alchemy.object.IInventory;
+import  alchemy.object.IKnowledgeBook;
+import  alchemy.object.Player;
+import  alchemy.object.Potion;
 
 public interface IStubDatabase {
 

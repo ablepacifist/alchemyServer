@@ -1,4 +1,4 @@
-package object;
+package alchemy.object;
 import java.util.Map;
 
 public interface IInventory {

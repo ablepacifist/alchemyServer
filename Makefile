@@ -1,8 +1,12 @@
 # Compiler and paths
 JAVAC = javac
 JAVA = java
-JAR_PATH = lib/junit-4.13.2.jar:lib/hamcrest-core-1.3.jar:lib/hsqldb.jar:lib/HikariCP-3.1.0.jar:lib/slf4j-api-1.7.36.jar:lib/slf4j-simple-1.7.36.jar
-SRC = Main.java data/*.java object/*.java logic/*.java
+JAR_PATH = lib/junit-4.13.2.jar:lib/hamcrest-core-1.3.jar:lib/hsqldb.jar:lib/HikariCP-3.1.0.jar 
+#JAR_PATH = lib/junit-4.13.2.jar:lib/hamcrest-core-1.3.jar:lib/hsqldb.jar:lib/HikariCP-3.1.0.jar:lib/slf4j-api-1.7.36.jar:lib/slf4j-simple-1.7.36.jar
+SRC = src/main/java/alchemy/Main.java \
+      src/main/java/alchemy/data/*.java \
+      src/main/java/alchemy/logic/*.java \
+      src/main/java/alchemy/object/*.java
 OUT = bin
 
 # Test based files
