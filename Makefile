@@ -27,8 +27,8 @@ compile-tests:
 
 # Start the HSQLDB server
 start-server:
-	@echo "Starting HSQLDB Server..."
-	$(JAVA) -cp $(JAR_PATH) org.hsqldb.Server --database.0 file:$(DB_PATH) --dbname.0 mydb &
+	@echo "Starting HSQLDB Server on public interface..."
+	$(JAVA) -cp $(JAR_PATH) org.hsqldb.Server --address 0.0.0.0 --port 9001 --database.0 file:$(DB_PATH) --dbname.0 mydb &
 
 # Run the main program (after the server starts)
 run:
