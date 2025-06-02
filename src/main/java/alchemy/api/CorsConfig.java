@@ -15,9 +15,9 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 // Replace the allowedOrigins values with your actual front end origins:
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://45.44.165.5:8080", "http://www.mypublicdomain.com")
+                        .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowCredentials(true);
+                        .allowedHeaders("*");
             }
         };
     }

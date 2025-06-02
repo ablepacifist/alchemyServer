@@ -16,7 +16,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/potion")
-@CrossOrigin(origins = {"http://45.44.165.5:8080", "http://www.mypublicdomain.com"})
+@CrossOrigin(origins = "*")
 public class PotionController {
 
     @Autowired

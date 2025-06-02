@@ -86,6 +86,43 @@ make clean
 This deletes the `bin/` folder, keeping your project directory clean.
 
 ---
+**"Running the React Front-end"**:
+
+---
+
+```markdown
+### Running the React Front-end
+
+To view the enhanced UI (with backgrounds, icons, and full navigation), follow these steps:
+
+1. **Navigate to the React Project Folder:**  
+   Open a terminal and change directory to the React project (typically called `alchemy-ui`):
+   ```bash
+   cd alchemy-ui
+   ```
+
+2. **Install Dependencies:**  
+   If you haven't installed the project dependencies yet, run:
+   ```bash
+   npm install
+   ```
+
+3. **Start the Development Server:**  
+   Launch the React development server with:
+   ```bash
+   npm start
+   ```
+   This will automatically open the app in your default browser at [http://localhost:3000](http://localhost:3000). If not, manually navigate to that URL.
+
+4. **View the Enhanced UI:**  
+   The app will display the improved pages (Home, Login, Register, Dashboard) with assets loaded from `src/assets/images`. You can then interact with the UI—log in, register, and navigate between pages.
+
+> **Note:** The backend (Spring Boot) runs on port 8080, while the React frontend runs on port 3000. They communicate via CORS during development.
+```
+
+---
+
+
 
 ## Automated Testing
 

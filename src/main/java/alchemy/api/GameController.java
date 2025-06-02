@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/game")
-@CrossOrigin(origins = {"http://45.44.165.5:8080", "http://www.mypublicdomain.com"})
+@CrossOrigin(origins = "*")
 public class GameController {
 
     @Autowired

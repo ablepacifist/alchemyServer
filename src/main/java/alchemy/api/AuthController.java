@@ -15,9 +15,9 @@ import java.util.Map;
  *   - POST /api/auth/register
  *   - POST /api/auth/login
  */
-@RestController@CrossOrigin(origins = {"http://45.44.165.5:8080", "http://www.mypublicdomain.com"})
+@RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/auth")
-
 public class AuthController {
 
     @Autowired
@@ -33,8 +33,8 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                                  .body("Username is already taken.");
         }
-        // add second password screen
         // Delegate registration to the logic layer.
+        // The call below passes in password twice since you're not using an email.
         playerManagerService.registerPlayer(username, password, password);
 
         Map<String, String> response = new HashMap<>();

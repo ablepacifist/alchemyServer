@@ -17,7 +17,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/player")
-@CrossOrigin(origins = {"http://45.44.165.5:8080", "http://www.mypublicdomain.com"})
+@CrossOrigin(origins = "*")
 public class PlayerController {
 
     @Autowired
