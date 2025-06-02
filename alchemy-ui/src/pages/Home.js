@@ -1,4 +1,3 @@
-// File: src/pages/Home.js
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
@@ -46,6 +45,9 @@ const Home = () => {
           </Link>
           <Link to="/register">
             <button style={{ ...buttonStyle, marginLeft: '1rem' }}>Register</button>
+          </Link>
+          <Link to="/about">
+            <button style={{ ...buttonStyle, marginLeft: '1rem' }}>About</button>
           </Link>
         </div>
       )}

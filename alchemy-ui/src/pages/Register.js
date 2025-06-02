@@ -1,4 +1,3 @@
-// File: src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import background from '../assets/images/background.jpg';
