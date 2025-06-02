@@ -4,7 +4,7 @@ plugins {
     id 'java'
 }
 
-group = 'my.alchemy'  // You can choose any identifier; this isn’t critical.
+group = 'my.alchemy'
 version = '1.0.0'
 sourceCompatibility = '17'
 
@@ -13,15 +13,22 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot Web Starter brings in all the necessary libraries for a web app.
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    
+    // Include any legacy jars you might have in the lib folder (if needed)
     implementation fileTree(dir: 'lib', include: ['*.jar'])
+    
+    // For testing, this brings in JUnit, MockMvc and other useful test utilities.
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+// Specify the main class for the Spring Boot application
 springBoot {
     mainClass = 'alchemy.Main'
 }
 
+// Use the JUnit Platform for tests (recommended when using Spring Boot Starter Test)
 test {
     useJUnitPlatform()
 }

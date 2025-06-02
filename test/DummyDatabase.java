@@ -2,16 +2,17 @@ package test;
 
 import java.sql.SQLException;
 import java.util.*;
-import data.IStubDatabase;
-import object.Player;
-import object.IInventory;
-import object.IKnowledgeBook;
-import object.Inventory;
-import object.KnowledgeBook;
-import object.IIngredient;
-import object.IEffect;
-import object.Potion;
-import object.IPotion;
+
+import alchemy.data.IStubDatabase;
+import alchemy.object.Player;
+import alchemy.object.IInventory;
+import alchemy.object.IKnowledgeBook;
+import alchemy.object.Inventory;
+import alchemy.object.KnowledgeBook;
+import alchemy.object.IIngredient;
+import alchemy.object.IEffect;
+import alchemy.object.Potion;
+import alchemy.object.IPotion;
 
 public class DummyDatabase implements IStubDatabase {
     // Internal storage for players, effects, ingredients, etc.

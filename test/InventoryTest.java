@@ -7,11 +7,11 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.Map;
 
-import object.Effect;
-import object.Ingredient;
-import object.Inventory;
-import object.IPotion;
-import object.Potion;
+import alchemy.object.Effect;
+import alchemy.alchemy.object.Ingredient;
+import alchemy.object.Inventory;
+import alchemy.object.IPotion;
+import alchemy.object.Potion;
 
 public class InventoryTest {
 
