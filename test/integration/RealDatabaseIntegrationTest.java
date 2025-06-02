@@ -15,19 +15,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import data.HSQLDatabase;
-import data.IStubDatabase;
-import logic.PlayerManager;
-import logic.PotionManager;
-import object.Effect;
-import object.Ingredient;
-import object.Inventory;
-import object.IIngredient;
-import object.IEffect;
-import object.IKnowledgeBook;
-import object.KnowledgeBook;
-import object.Player;
-import object.Potion;
+import alchemy.data.HSQLDatabase;
+import alchemy.data.IStubDatabase;
+import alchemy.logic.PlayerManager;
+import alchemy.logic.PotionManager;
+import alchemy.object.Effect;
+import alchemy.object.Ingredient;
+import alchemy.object.Inventory;
+import alchemy.object.IIngredient;
+import alchemy.object.IEffect;
+import alchemy.object.IKnowledgeBook;
+import alchemy.object.KnowledgeBook;
+import alchemy.object.Player;
+import alchemy.object.Potion;
 
 /**
  * Comprehensive integration tests that use the real HSQLDB server.

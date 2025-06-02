@@ -9,11 +9,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import data.IStubDatabase;
-import logic.GameManager;
-import logic.GameManagerService;
-import logic.PlayerManager;
-import logic.PotionManager;
+import alchemy.data.IStubDatabase;
+import alchemy.logic.GameManager;
+import alchemy.logic.GameManagerService;
+import alchemy.logic.PlayerManager;
+import alchemy.logic.PotionManager;
 
 public class GameManagerTest {
 

@@ -10,18 +10,18 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import data.IStubDatabase;
-import logic.PlayerManager;
-import object.Player;
-import object.Inventory;
-import object.IKnowledgeBook;
-import object.IIngredient;
-import object.IEffect;
-import object.Potion;
-import object.IPotion;
-import object.KnowledgeBook;
-import object.Effect;
-import object.Ingredient;
+import alchemy.data.IStubDatabase;
+import alchemy.logic.PlayerManager;
+import alchemy.object.Player;
+import alchemy.object.Inventory;
+import alchemy.object.IKnowledgeBook;
+import alchemy.object.IIngredient;
+import alchemy.object.IEffect;
+import alchemy.object.Potion;
+import alchemy.object.IPotion;
+import alchemy.object.KnowledgeBook;
+import alchemy.object.Effect;
+import alchemy.object.Ingredient;
 
 public class PlayerManagerTest {
     private IStubDatabase db;
