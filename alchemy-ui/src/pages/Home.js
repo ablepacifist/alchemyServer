@@ -6,7 +6,7 @@ import icon from '../assets/images/icon.jpg';
 
 const Home = () => {
   const { user } = useContext(UserContext);
-
+  // formatting style
   const containerStyle = {
     backgroundImage: `url(${background})`,
     backgroundSize: 'cover',
@@ -21,7 +21,7 @@ const Home = () => {
     color: '#fff',
     textShadow: '1px 1px 2px rgba(0, 0, 0, 0.7)'
   };
-
+  // button look
   const buttonStyle = {
     margin: '0.5rem',
     padding: '1rem 2rem',
@@ -32,6 +32,7 @@ const Home = () => {
     backgroundColor: '#61dafb'
   };
 
+  //what is displayed on the screen
   return (
     <div style={containerStyle}>
       <img src={icon} alt="Alchemy Icon" style={{ width: '150px', marginBottom: '1rem' }} />

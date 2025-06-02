@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import background from '../assets/images/background.jpg';
-
+// register component acts much the same way as the lognin component
 const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
+  // This function will run when the user submits the registration form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     // No client-side validation checks—everything is sent to the API for validation.
     try {
+      // send the JSON package to the server
+      // can replace the fetch call with '${API_URL}/api/auth/register' ?
       const response = await fetch("http://45.44.165.5:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, confirmPassword })
       });
-      if (!response.ok) {
+      if (!response.ok) { // failed to register
         throw new Error('Registration failed');
       }
       const data = await response.json();
@@ -67,7 +69,7 @@ const Register = () => {
     cursor: 'pointer',
     fontSize: '1rem'
   };
-
+// what is actually displayed on the screen
   return (
     <div style={containerStyle}>
       <div style={formStyle}>

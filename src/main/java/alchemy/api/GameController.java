@@ -5,7 +5,8 @@ import alchemy.logic.GameManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+// these api calls arent used very much yet. but they are still availible for the
+// user to fuck around with.
 /**
  * Exposes game management endpoints:
  *   - POST /api/game/start

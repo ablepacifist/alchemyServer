@@ -15,15 +15,17 @@ import java.util.Map;
  *   - POST /api/auth/register
  *   - POST /api/auth/login
  */
+
+ // if a JSON package has "register" or "login", then this tells the server what to do
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // accept all isp
 @RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
     private PlayerManagerService playerManagerService;
 
-    @PostMapping("/register")
+    @PostMapping("/register") //  routes "registeration" task
     public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");
         String password = payload.get("password");
@@ -42,6 +44,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    //reroutes the login task
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
         String username = payload.get("username");

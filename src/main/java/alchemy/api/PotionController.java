@@ -3,6 +3,8 @@ package alchemy.api;
 import alchemy.logic.GameManagerService;
 import alchemy.object.Potion;
 import alchemy.object.IIngredient;
+import alchemy.object.IInventory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +30,10 @@ public class PotionController {
         int ingredientId1 = (int) payload.get("ingredientId1");
         int ingredientId2 = (int) payload.get("ingredientId2");
 
-        // You must implement a method to retrieve IIngredient objects from your database or logic layer.
-        IIngredient ingredient1 = fetchIngredientById(ingredientId1);
-        IIngredient ingredient2 = fetchIngredientById(ingredientId2);
+        // Retrieve the ingredients from the player's inventory.
+        IIngredient ingredient1 = fetchIngredientById(playerId, ingredientId1);
+        IIngredient ingredient2 = fetchIngredientById(playerId, ingredientId2);
+        
         
         if (ingredient1 == null || ingredient2 == null) {
             return ResponseEntity.badRequest().body("Invalid ingredient selection.");
@@ -48,9 +51,20 @@ public class PotionController {
         return ResponseEntity.ok(response);
     }
 
-    // Pseudo-code: Replace this with a real implementation to retrieve an ingredient by ID.
-    private IIngredient fetchIngredientById(int ingredientId) {
-        // For example: return ingredientService.getIngredientById(ingredientId);
-        return null; // <-- Replace with actual lookup
+private IIngredient fetchIngredientById(int playerId, int ingredientId) {
+        // Get the player's inventory.
+        IInventory inventory = gameManagerService.getPlayerManager().getInventory(playerId);
+        if (inventory == null) {
+            return null; 
+        }
+        
+        //this might be a place for failiure later
+        //TODO: check to see if this is actually working
+        for (IIngredient ingredient : inventory.getIngredients().keySet()) {
+            if (ingredient.getId() == ingredientId) { 
+                return ingredient;
+            }
+        }
+        return null;
     }
 }

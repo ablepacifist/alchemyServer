@@ -17,11 +17,7 @@ import alchemy.object.Potion;
  * and potion brewing/consumption.
  */
 
-import alchemy.object.IIngredient;
-import alchemy.object.IInventory;
-import alchemy.object.IKnowledgeBook;
-import alchemy.object.IPotion;
-import alchemy.object.Player;
+
 
 public interface PlayerManagerService {
 

@@ -2,29 +2,32 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import background from '../assets/images/background.jpg';
-
+const API_URL = process.env.REACT_APP_API_URL;
+// const login here is a component that handles user login
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { setUser } = useContext(UserContext);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
+  // This will run when user submits the login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
+      // this is the JSON package that will be sent to the server
+      // can replace the fetch call with '${API_URL}/api/auth/login' ?
       const response = await fetch("http://45.44.165.5:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
       });
-      if (!response.ok) {
+      if (!response.ok) { // it failed to login
         throw new Error('Login failed');
       }
       const data = await response.json();
       console.log("Login successful:", data);
-      // Update context with the username (modify this if your API returns a more complex object)
+      // Update context with the username and navigate to dashboard
       setUser({ username: data.username || username });
       navigate("/dashboard");
     } catch (err) {
@@ -69,7 +72,7 @@ const Login = () => {
     cursor: 'pointer',
     fontSize: '1rem'
   };
-
+  // this is what will actually be displayed on the screen
   return (
     <div style={containerStyle}>
       <div style={formStyle}>
