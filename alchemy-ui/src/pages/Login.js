@@ -28,7 +28,7 @@ const Login = () => {
       const data = await response.json();
       console.log("Login successful:", data);
       // Update context with the username and navigate to dashboard
-      setUser({ username: data.username || username });
+      setUser({ id: data.playerId, username: data.username || username });
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
