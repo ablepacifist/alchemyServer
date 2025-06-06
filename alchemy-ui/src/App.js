@@ -9,10 +9,13 @@ import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import Profile from './components/Profile'
 import KnowledgeBook from './pages/KnowledgeBook';
+import icon from './assets/images/icon.jpg';
+
 
 // path to all pages to be called:
 function App() {
   return (
+    
     <UserProvider>
       <Router>
         <Routes>
