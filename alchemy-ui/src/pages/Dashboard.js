@@ -337,7 +337,7 @@ return (
     {animationType && (
       <div className={`animation-overlay ${animationType === 'brew' ? 'brew-animation' : 'forage-animation'}`}>
         {/* Optionally, place an image or message */}
-        <img src="/assets/animation.png" alt="Animation" style={{ width: '150px', height: '150px' }}/>
+        <img src="/assets/images/forage.png" alt="Animation" style={{ width: '150px', height: '150px' }}/>
       </div>
     )}
 
