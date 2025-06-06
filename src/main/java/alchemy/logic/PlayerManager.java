@@ -202,4 +202,39 @@ public class PlayerManager  implements PlayerManagerService{
         return (List<Player>) db.getAllPlayers();
     }
 
+
+/**
+ * Look up an ingredient by id in the player's inventory.
+ */
+public IIngredient getIngredientFromInventory(int playerId, int ingredientId) {
+    IInventory inventory = db.getPlayerInventory(playerId);
+    // The inventory returns a Map<IIngredient, Integer>
+    for (IIngredient ingredient : inventory.getIngredients().keySet()) {
+        if (ingredient.getId() == ingredientId) {
+            return ingredient;
+        }
+    }
+    return null;
+}
+
+/**
+ * Look up a potion by id in the player's inventory.
+ */
+public IPotion getPotionFromInventory(int playerId, int potionId) {
+    IInventory inventory = db.getPlayerInventory(playerId);
+    // The inventory returns a Map<IPotion, Integer>
+    for (IPotion potion : inventory.getPotions().keySet()) {
+        if (potion.getId() == potionId) {
+            return potion;
+        }
+    }
+    return null;
+}
+
+
+
+
+
+
+
 }

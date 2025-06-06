@@ -116,4 +116,10 @@ public interface PlayerManagerService {
     boolean levelUpPlayer(Player player, String secretPassword);
 
     List<Player> getAllPlayers();
+
+    public IIngredient getIngredientFromInventory(int playerId, int ingredientId);
+    public IPotion getPotionFromInventory(int playerId, int potionId);
 }
+
+
+

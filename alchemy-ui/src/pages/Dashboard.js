@@ -2,12 +2,16 @@ import React, { useEffect, useState, useContext } from 'react';
 import { UserContext } from '../context/UserContext';
 import { Link } from 'react-router-dom';
 import background from '../assets/images/dashboard_background.jpg';
+import ItemModal from '../components/ItemModal'; // Ensure this component exists
+import '../animations.css';
+
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
-  console.log('DASHBOARD mounted. User:',user);
+  console.log('DASHBOARD mounted. User:', user);
   const playerId = user?.id; // Assumes the user object contains an 'id' field
-  console.log('Player Id from context:',playerId);
+  console.log('Player Id from context:', playerId);
+
   // State for inventory data
   const [ingredients, setIngredients] = useState([]);
   const [potions, setPotions] = useState([]);
@@ -16,51 +20,54 @@ const Dashboard = () => {
   // Brew selection state for two ingredients
   const [brewSelection, setBrewSelection] = useState({ ingredient1: '', ingredient2: '' });
 
+  // State for the modal (detailed view)
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedType, setSelectedType] = useState(''); // "ingredient" or "potion"
+
+  const [animationType, setAnimationType] = useState(null);
   // Fetch the player's inventory from the API
-// Fetch the player's inventory from the API
-const fetchInventory = async () => {
-  if (playerId === undefined || playerId === null) return;
-  setLoading(true);
-  console.log(`Sending fetch request to inventory API for player: ${playerId}`);
-  try {
-    const response = await fetch(`http://45.44.165.5:8080/api/player/inventory/${playerId}`);
-    console.log("HTTP status:", response.status);
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Inventory data fetched:", data);
-      setIngredients(data.ingredients || []);
-      setPotions(data.potions || []);
-    } else {
-      // If the response is not OK, log the error message.
-      const errMsg = await response.text();
-      console.error("Fetch inventory failed with error:", errMsg);
+  const fetchInventory = async () => {
+    if (playerId === undefined || playerId === null) return;
+    setLoading(true);
+    console.log(`Sending fetch request to inventory API for player: ${playerId}`);
+    try {
+      const response = await fetch(`http://45.44.165.5:8080/api/player/inventory/${playerId}`);
+      console.log("HTTP status:", response.status);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Inventory data fetched:", data);
+        setIngredients(data.ingredients || []);
+        setPotions(data.potions || []);
+      } else {
+        const errMsg = await response.text();
+        console.error("Fetch inventory failed with error:", errMsg);
+      }
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching inventory:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
+  useEffect(() => {
+    if (playerId !== undefined && playerId !== null) {
+      console.log('Fetching inventory for player:', playerId);
+      fetchInventory();
+    } else {
+      console.log('Player ID is undefined or null, not fetching inventory.');
+    }
+  }, [playerId]);
 
-useEffect(() => {
-  // Allow playerId of 0 to be valid.
-  if (playerId !== undefined && playerId !== null) {
-    console.log('Fetching inventory for player:', playerId);
-    fetchInventory();
-  } else {
-    console.log('Player ID is undefined or null, not fetching inventory.');
-  }
-}, [playerId]);
-
-
-  // Handle brewing a potion: post selected ingredient IDs to the brew endpoint
+  // Handle brewing a potion
   const handleBrewPotion = async () => {
     if (!brewSelection.ingredient1 || !brewSelection.ingredient2) {
       alert('Please select both ingredients for brewing.');
       return;
     }
     try {
+      setAnimationType('brew');
+      setTimeout(() => setAnimationType(null), 2000);
+
       const response = await fetch(`http://45.44.165.5:8080/api/potion/brew`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -83,34 +90,88 @@ useEffect(() => {
     }
   };
 
-  // Handle foraging: confirm with the user then call the forage endpoint
-const handleForage = async () => {
-  if (playerId === undefined || playerId === null) return;
-  const confirmed = window.confirm('Are you sure? Did Alex tell you you can forage for today?');
-  if (!confirmed) return;
-  try {
-    console.log(`Sending forage request for player: ${playerId}`);
-    const response = await fetch(`http://45.44.165.5:8080/api/player/forage/${playerId}`, { method: 'GET' });
-    console.log("Forage HTTP status:", response.status);
-    if (response.ok) {
-      const data = await response.json();
-      console.log("Forage response:", data);
-      alert(`Foraged ingredient: ${data.forage}`);
-      fetchInventory(); // Refresh inventory after foraging
-    } else {
-      const errMsg = await response.text();
-      console.error("Forage fetch failed with error:", errMsg);
-      alert(`Forage failed: ${errMsg}`);
+  // Handle foraging
+  const handleForage = async () => {
+    if (playerId === undefined || playerId === null) return;
+    const confirmed = window.confirm('Are you sure? Did Alex tell you you can forage for today?');
+    if (!confirmed) return;
+    try {
+            setAnimationType('forage');
+      setTimeout(() => setAnimationType(null), 2000);
+      
+      const response = await fetch(`http://45.44.165.5:8080/api/player/forage/${playerId}`, {
+        method: 'GET',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Foraged ingredient: ${data.forage}`);
+        fetchInventory(); // Refresh inventory after foraging
+      } else {
+        const errMsg = await response.text();
+        alert(`Forage failed: ${errMsg}`);
+      }
+    } catch (error) {
+      console.error('Error executing forage:', error);
+      alert('Error executing forage.');
     }
-  } catch (error) {
-    console.error('Error executing forage:', error);
-    alert('Error executing forage.');
-  }
-};
+  };
 
+  // Handle consume from the modal
+  const handleConsume = async () => {
+    if (!selectedItem || playerId === undefined || playerId === null) return;
+    if (selectedType === 'ingredient') {
+      try {
+        const response = await fetch(`http://45.44.165.5:8080/api/player/ingredient/consume`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId, ingredientId: selectedItem.id })
+        });
+        if (response.ok) {
+          alert('Ingredient consumed successfully!');
+          closeModal();
+          fetchInventory();
+        } else {
+          const errMsg = await response.text();
+          alert(`Failed to consume ingredient: ${errMsg}`);
+        }
+      } catch (error) {
+        console.error('Error consuming ingredient:', error);
+        alert('Error consuming ingredient.');
+      }
+    } else if (selectedType === 'potion') {
+      try {
+        const response = await fetch(`http://45.44.165.5:8080/api/player/potion/consume`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ playerId, potionId: selectedItem.id })
+        });
+        if (response.ok) {
+          alert('Potion consumed successfully!');
+          closeModal();
+          fetchInventory();
+        } else {
+          const errMsg = await response.text();
+          alert(`Failed to consume potion: ${errMsg}`);
+        }
+      } catch (error) {
+        console.error('Error consuming potion:', error);
+        alert('Error consuming potion.');
+      }
+    }
+  };
 
+  // Modal Handlers
+  const openModal = (item, type) => {
+    setSelectedItem(item);
+    setSelectedType(type);
+  };
 
-  // Manually refresh the inventory
+  const closeModal = () => {
+    setSelectedItem(null);
+    setSelectedType('');
+  };
+
+  // Manually refresh inventory
   const handleRefresh = () => {
     fetchInventory();
   };
@@ -140,6 +201,7 @@ const handleForage = async () => {
     width: '40%',
     maxHeight: '400px',
     overflowY: 'scroll',
+    cursor: 'pointer', // indicate clickable items
   };
 
   const buttonStyle = {
@@ -151,131 +213,144 @@ const handleForage = async () => {
     cursor: 'pointer',
   };
 
-  const formLabelStyle = {
-    marginRight: '0.5rem',
-  };
+  const formLabelStyle = { marginRight: '0.5rem' };
+return (
+  <div style={containerStyle}>
+    <h1 style={headerStyle}>
+      Welcome, {user && user.username ? user.username : 'User'}!
+    </h1>
 
-  return (
-    <div style={containerStyle}>
-      <h1 style={headerStyle}>
-        Welcome, {user && user.username ? user.username : 'User'}!
-      </h1>
-
-      <div style={columnsContainer}>
-        {/* Ingredients List */}
-        <div style={listContainer}>
-          <h2>Ingredients</h2>
-          {loading ? (
-            <p>Loading...</p>
-          ) : ingredients.length === 0 ? (
-            <p>No ingredients available.</p>
-          ) : (
-            <ul style={{ listStyleType: 'none', padding: 0 }}>
-              {ingredients.map((ing) => (
-                <li key={ing.id}>
-                  <strong>{ing.name}</strong> (x{ing.quantity})
-                  {ing.effects && ing.effects.length > 0 && (
-                    <ul style={{ listStyleType: 'circle' }}>
-                      {ing.effects.map((effect, idx) => (
-                        <li key={idx}>{effect.title}</li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Potions List */}
-        <div style={listContainer}>
-          <h2>Potions</h2>
-          {loading ? (
-            <p>Loading...</p>
-          ) : potions.length === 0 ? (
-            <p>No potions brewed yet.</p>
-          ) : (
-            <ul style={{ listStyleType: 'none', padding: 0 }}>
-              {potions.map((pot) => (
-                <li key={pot.id}>
-                  <strong>{pot.name}</strong> (x{pot.quantity})
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+    <div style={columnsContainer}>
+      {/* Ingredients List */}
+      <div style={listContainer}>
+        <h2>Ingredients</h2>
+        {loading ? (
+          <p>Loading...</p>
+        ) : ingredients.length === 0 ? (
+          <p>No ingredients available.</p>
+        ) : (
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {ingredients.map((ing) => (
+              // Add onClick so that clicking an ingredient opens the detailed modal view.
+              <li key={ing.id} onClick={() => openModal(ing, 'ingredient')}>
+                <strong>{ing.name}</strong> (x{ing.quantity})
+                {ing.effects && ing.effects.length > 0 && (
+                  <ul style={{ listStyleType: 'circle' }}>
+                    {ing.effects.map((effect, idx) => (
+                      <li key={idx}>{effect.title}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {/* Brew Potion Section */}
-      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        <h2>Brew Potion</h2>
-        <div>
-          <label style={formLabelStyle}>
-            Ingredient 1:
-            <select
-              value={brewSelection.ingredient1}
-              onChange={(e) =>
-                setBrewSelection({ ...brewSelection, ingredient1: e.target.value })
-              }
-              style={{ marginLeft: '0.5rem' }}
-            >
-              <option value="">Select</option>
-              {ingredients.map((ing) => (
-                <option key={ing.id} value={ing.id}>
-                  {ing.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <div>
-          <label style={formLabelStyle}>
-            Ingredient 2:
-            <select
-              value={brewSelection.ingredient2}
-              onChange={(e) =>
-                setBrewSelection({ ...brewSelection, ingredient2: e.target.value })
-              }
-              style={{ marginLeft: '0.5rem' }}
-            >
-              <option value="">Select</option>
-              {ingredients.map((ing) => (
-                <option key={ing.id} value={ing.id}>
-                  {ing.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <button style={buttonStyle} onClick={handleBrewPotion}>
-          Brew Potion
-        </button>
-      </div>
-
-      {/* Forage Button */}
-      <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-        <button style={buttonStyle} onClick={handleForage}>
-          Forage
-        </button>
-      </div>
-
-      {/* Navigation Buttons */}
-      <div style={{ textAlign: 'center' }}>
-        <Link to="/profile">
-          <button style={buttonStyle}>Profile</button>
-        </Link>
-        <Link to="/knowledge">
-          <button style={buttonStyle}>Knowledge Book</button>
-        </Link>
-        <Link to="/inventory">
-          <button style={buttonStyle}>Inventory</button>
-        </Link>
-        <button style={buttonStyle} onClick={handleRefresh}>
-          Refresh Inventory
-        </button>
+      {/* Potions List */}
+      <div style={listContainer}>
+        <h2>Potions</h2>
+        {loading ? (
+          <p>Loading...</p>
+        ) : potions.length === 0 ? (
+          <p>No potions brewed yet.</p>
+        ) : (
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {potions.map((pot) => (
+              // Add onClick for potion items.
+              <li key={pot.id} onClick={() => openModal(pot, 'potion')}>
+                <strong>{pot.name}</strong> (x{pot.quantity})
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
-  );
-};
 
+    {/* Brew Potion Section */}
+    <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+      <h2>Brew Potion</h2>
+      <div>
+        <label style={formLabelStyle}>
+          Ingredient 1:
+          <select
+            value={brewSelection.ingredient1}
+            onChange={(e) =>
+              setBrewSelection({ ...brewSelection, ingredient1: e.target.value })
+            }
+            style={{ marginLeft: '0.5rem' }}
+          >
+            <option value="">Select</option>
+            {ingredients.map((ing) => (
+              <option key={ing.id} value={ing.id}>
+                {ing.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <div>
+        <label style={formLabelStyle}>
+          Ingredient 2:
+          <select
+            value={brewSelection.ingredient2}
+            onChange={(e) =>
+              setBrewSelection({ ...brewSelection, ingredient2: e.target.value })
+            }
+            style={{ marginLeft: '0.5rem' }}
+          >
+            <option value="">Select</option>
+            {ingredients.map((ing) => (
+              <option key={ing.id} value={ing.id}>
+                {ing.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <button style={buttonStyle} onClick={handleBrewPotion}>
+        Brew Potion
+      </button>
+    </div>
+
+    {/* Forage Button */}
+    <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
+      <button style={buttonStyle} onClick={handleForage}>
+        Forage
+      </button>
+    </div>
+
+    {/* Navigation Buttons */}
+    <div style={{ textAlign: 'center' }}>
+      <Link to="/profile">
+        <button style={buttonStyle}>Profile</button>
+      </Link>
+      <Link to="/knowledge">
+        <button style={buttonStyle}>Knowledge Book</button>
+      </Link>
+      <button style={buttonStyle} onClick={handleRefresh}>
+        Refresh Inventory
+      </button>
+    </div>
+
+    {/* Animation Overlay */}
+    {animationType && (
+      <div className={`animation-overlay ${animationType === 'brew' ? 'brew-animation' : 'forage-animation'}`}>
+        {/* Optionally, place an image or message */}
+        <img src="/assets/animation.png" alt="Animation" style={{ width: '150px', height: '150px' }}/>
+      </div>
+    )}
+
+    {/* Modal for Detailed View */}
+    {selectedItem && (
+      <ItemModal
+        item={selectedItem}
+        type={selectedType}
+        onClose={closeModal}
+        onConsume={handleConsume}
+      />
+    )}
+  </div>
+);
+}
 export default Dashboard;

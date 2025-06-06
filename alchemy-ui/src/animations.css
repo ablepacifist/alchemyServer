@@ -1,0 +1,54 @@
+
+/* Brew Animation: scale-up and fade-out */
+@keyframes brewAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.brew-animation {
+  animation: brewAnimation 2s ease-out;
+}
+
+/* Forage Animation: slide in, then fade-out */
+@keyframes forageAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+.forage-animation {
+  animation: forageAnimation 2s ease-out;
+}
+
+/* An overlay container: covers the whole screen */
+.animation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* allow clicks to pass through */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
