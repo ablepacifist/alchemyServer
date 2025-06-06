@@ -32,7 +32,9 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    fetchPlayerDetails();
+    if (user) {
+      fetchPlayerDetails();
+    }
   }, [user]);
 
   // Handler to level up the player.
@@ -61,7 +63,7 @@ const Profile = () => {
   // Logout: clear the user from context and navigate to login.
   const handleLogout = () => {
     setUser(null);
-    navigate('/home');
+    navigate('/');
   };
 
   // Return to dashboard.
@@ -69,48 +71,98 @@ const Profile = () => {
     navigate('/dashboard');
   };
 
+  // Styling for the Profile UI
+  const containerStyle = {
+    backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url(${background})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '2rem'
+  };
+
+  const cardStyle = {
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: '8px',
+    padding: '2rem 3rem',
+    textAlign: 'center',
+    maxWidth: '500px',
+    width: '100%',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+  };
+
+  const headingStyle = {
+    fontSize: '2.5rem',
+    marginBottom: '1rem',
+    color: '#333',
+    fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`
+  };
+
+  const textStyle = {
+    fontSize: '1.2rem',
+    color: '#333'
+  };
+
+  const inputStyle = {
+    padding: '0.5rem',
+    marginRight: '1rem',
+    fontSize: '1rem',
+    borderRadius: '5px',
+    border: '1px solid #ccc'
+  };
+
+  const buttonStyle = {
+    margin: '0.5rem',
+    padding: '0.5rem 1rem',
+    fontSize: '1rem',
+    borderRadius: '5px',
+    border: 'none',
+    cursor: 'pointer',
+    backgroundColor: '#61dafb',
+    color: '#333',
+    fontWeight: 'bold',
+    transition: 'transform 0.2s, box-shadow 0.2s'
+  };
+
   return (
-    <div style={{
-      backgroundImage: `url(${background})`,
-      backgroundSize: 'cover',
-      minHeight: '100vh',
-      color: '#fff',
-      textAlign: 'center',
-      padding: '2rem'
-    }}>
-      <h1>Profile</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : player ? (
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h1 style={headingStyle}>Profile</h1>
+        {loading ? (
+          <p style={textStyle}>Loading...</p>
+        ) : player ? (
+          <div style={{ marginBottom: '1rem' }}>
+            <p style={textStyle}><strong>Username:</strong> {player.username}</p>
+            <p style={textStyle}><strong>Level:</strong> {player.level}</p>
+          </div>
+        ) : (
+          <p style={textStyle}>No player details available.</p>
+        )}
         <div style={{ marginBottom: '1rem' }}>
-          <p><strong>Username:</strong> {player.username}</p>
-          <p><strong>Level:</strong> {player.level}</p>
+          <h3 style={{ ...headingStyle, fontSize: '1.8rem', marginBottom: '0.5rem' }}>Level Up</h3>
+          <input 
+            type="password"
+            placeholder="Enter secret password"
+            value={secretPassword}
+            onChange={(e) => setSecretPassword(e.target.value)}
+            style={inputStyle}
+          />
+          <button onClick={handleLevelUp} style={buttonStyle}>
+            Level Up
+          </button>
         </div>
-      ) : (
-        <p>No player details available.</p>
-      )}
-      <div>
-        <h3>Level Up</h3>
-        <input 
-          type="password"
-          placeholder="Enter secret password"
-          value={secretPassword}
-          onChange={(e) => setSecretPassword(e.target.value)}
-          style={{ padding: '0.5rem', marginRight: '1rem' }}
-        />
-        <button onClick={handleLevelUp} style={{ padding: '0.5rem 1rem' }}>
-          Level Up
-        </button>
+        <div style={{ marginTop: '1rem' }}>
+          <button onClick={goBackToDashboard} style={buttonStyle}>
+            Back to Dashboard
+          </button>
+          <button onClick={handleLogout} style={buttonStyle}>
+            Logout
+          </button>
+        </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
-      <div style={{ marginTop: '1rem' }}>
-        <button onClick={goBackToDashboard} style={{ marginRight: '1rem', padding: '0.5rem 1rem' }}>
-          Back to Dashboard
-        </button>
-        <button onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>
-          Logout
-        </button>
-      </div>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };

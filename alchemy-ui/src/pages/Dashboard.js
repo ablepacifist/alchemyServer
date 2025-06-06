@@ -4,6 +4,10 @@ import { Link } from 'react-router-dom';
 import background from '../assets/images/dashboard_background.jpg';
 import ItemModal from '../components/ItemModal'; // Ensure this component exists
 import '../animations.css';
+import brewIcon from '../assets/images/brew.png';
+import forageIcon from '../assets/images/forage.png';
+import consumePotionIcon from '../assets/images/drink.png';
+import consumeIngredientIcon from '../assets/images/consume.png';
 
 
 const Dashboard = () => {
@@ -25,6 +29,8 @@ const Dashboard = () => {
   const [selectedType, setSelectedType] = useState(''); // "ingredient" or "potion"
 
   const [animationType, setAnimationType] = useState(null);
+  const [consumeAnimationType, setConsumeAnimationType] = useState(null);
+
   // Fetch the player's inventory from the API
   const fetchInventory = async () => {
     if (playerId === undefined || playerId === null) return;
@@ -128,6 +134,8 @@ const Dashboard = () => {
         });
         if (response.ok) {
           alert('Ingredient consumed successfully!');
+            setConsumeAnimationType('consumeIngredient');
+  setTimeout(() => setConsumeAnimationType(null), 2000);
           closeModal();
           fetchInventory();
         } else {
@@ -147,6 +155,8 @@ const Dashboard = () => {
         });
         if (response.ok) {
           alert('Potion consumed successfully!');
+            setConsumeAnimationType('consumePotion');
+  setTimeout(() => setConsumeAnimationType(null), 2000);
           closeModal();
           fetchInventory();
         } else {
@@ -204,16 +214,23 @@ const Dashboard = () => {
     cursor: 'pointer', // indicate clickable items
   };
 
+  // Button style
   const buttonStyle = {
     margin: '0.5rem',
     padding: '1rem 2rem',
     fontSize: '1.2rem',
     borderRadius: '5px',
-    backgroundColor: '#61dafb',
+    border: 'none',
     cursor: 'pointer',
+    backgroundColor: '#61dafb',
+    color: '#000',
+    fontWeight: 'bold',
+    boxShadow: '1px 1px 5px rgba(0, 0, 0, 0.4)',
+    transition: 'transform 0.2s, box-shadow 0.2s',
   };
 
-  const formLabelStyle = { marginRight: '0.5rem' };
+ const formLabelStyle = { marginRight: '1.2rem', color: '#000' };
+
 return (
   <div style={containerStyle}>
     <h1 style={headerStyle}>
@@ -231,7 +248,6 @@ return (
         ) : (
           <ul style={{ listStyleType: 'none', padding: 0 }}>
             {ingredients.map((ing) => (
-              // Add onClick so that clicking an ingredient opens the detailed modal view.
               <li key={ing.id} onClick={() => openModal(ing, 'ingredient')}>
                 <strong>{ing.name}</strong> (x{ing.quantity})
                 {ing.effects && ing.effects.length > 0 && (
@@ -257,7 +273,6 @@ return (
         ) : (
           <ul style={{ listStyleType: 'none', padding: 0 }}>
             {potions.map((pot) => (
-              // Add onClick for potion items.
               <li key={pot.id} onClick={() => openModal(pot, 'potion')}>
                 <strong>{pot.name}</strong> (x{pot.quantity})
               </li>
@@ -267,57 +282,74 @@ return (
       </div>
     </div>
 
-    {/* Brew Potion Section */}
+    {/* Brew & Forage Section */}
     <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-      <h2>Brew Potion</h2>
-      <div>
-        <label style={formLabelStyle}>
-          Ingredient 1:
-          <select
-            value={brewSelection.ingredient1}
-            onChange={(e) =>
-              setBrewSelection({ ...brewSelection, ingredient1: e.target.value })
-            }
-            style={{ marginLeft: '0.5rem' }}
-          >
-            <option value="">Select</option>
-            {ingredients.map((ing) => (
-              <option key={ing.id} value={ing.id}>
-                {ing.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      <h2>Brew &amp; Forage</h2>
+      {/* Container for ingredient selectors */}
+      <div
+        style={{
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          border: '1px solid #ccc',
+          padding: '1rem',
+          borderRadius: '5px',
+          display: 'inline-block',
+          marginBottom: '1rem'
+        }}
+      >
+        <div style={{ marginBottom: '0.5rem' }}>
+          <label style={{ ...formLabelStyle, color: '#000' }}>
+            Ingredient 1:
+            <select
+              value={brewSelection.ingredient1}
+              onChange={(e) =>
+                setBrewSelection({ ...brewSelection, ingredient1: e.target.value })
+              }
+              style={{ marginLeft: '0.5rem', color: '#000' }}
+            >
+              <option value="">Select</option>
+              {ingredients.map((ing) => (
+                <option key={ing.id} value={ing.id}>
+                  {ing.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div>
+          <label style={{ ...formLabelStyle, color: '#000' }}>
+            Ingredient 2:
+            <select
+              value={brewSelection.ingredient2}
+              onChange={(e) =>
+                setBrewSelection({ ...brewSelection, ingredient2: e.target.value })
+              }
+              style={{ marginLeft: '0.5rem', color: '#000' }}
+            >
+              <option value="">Select</option>
+              {ingredients.map((ing) => (
+                <option key={ing.id} value={ing.id}>
+                  {ing.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
       </div>
+      {/* Replace the buttons with clickable images */}
       <div>
-        <label style={formLabelStyle}>
-          Ingredient 2:
-          <select
-            value={brewSelection.ingredient2}
-            onChange={(e) =>
-              setBrewSelection({ ...brewSelection, ingredient2: e.target.value })
-            }
-            style={{ marginLeft: '0.5rem' }}
-          >
-            <option value="">Select</option>
-            {ingredients.map((ing) => (
-              <option key={ing.id} value={ing.id}>
-                {ing.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <img
+          src={brewIcon}
+          alt="Brew Potion"
+          style={{ cursor: 'pointer', border: '2px solid black', width: '150px', height: '150px', margin: '0.5rem' }}
+          onClick={handleBrewPotion}
+        />
+        <img
+          src={forageIcon}
+          alt="Forage"
+          style={{ cursor: 'pointer', border: '2px solid black', width: '150px', height: '150px', margin: '0.5rem' }}
+          onClick={handleForage}
+        />
       </div>
-      <button style={buttonStyle} onClick={handleBrewPotion}>
-        Brew Potion
-      </button>
-    </div>
-
-    {/* Forage Button */}
-    <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-      <button style={buttonStyle} onClick={handleForage}>
-        Forage
-      </button>
     </div>
 
     {/* Navigation Buttons */}
@@ -333,11 +365,37 @@ return (
       </button>
     </div>
 
-    {/* Animation Overlay */}
+    {/* Animation Overlay for Brew/Forage */}
     {animationType && (
-      <div className={`animation-overlay ${animationType === 'brew' ? 'brew-animation' : 'forage-animation'}`}>
-        {/* Optionally, place an image or message */}
-        <img src="/assets/images/forage.png" alt="Animation" style={{ width: '150px', height: '150px' }}/>
+      <div
+        className={`animation-overlay ${animationType === 'brew' ? 'brew-animation' : 'forage-animation'}`}
+      >
+        <img
+          src={animationType === 'brew' ? brewIcon : forageIcon}
+          alt="Animation"
+          style={{ width: '150px', height: '150px' }}
+        />
+      </div>
+    )}
+
+    {/* Animation Overlay for Consumption */}
+    {consumeAnimationType && (
+      <div
+        className={`animation-overlay ${
+          consumeAnimationType === 'consumePotion'
+            ? 'consume-potion-animation'
+            : 'consume-ingredient-animation'
+        }`}
+      >
+        <img
+          src={
+            consumeAnimationType === 'consumePotion'
+              ? consumePotionIcon
+              : consumeIngredientIcon
+          }
+          alt="Consume Animation"
+          style={{ width: '150px', height: '150px' }}
+        />
       </div>
     )}
 
@@ -352,5 +410,6 @@ return (
     )}
   </div>
 );
+
 }
 export default Dashboard;
