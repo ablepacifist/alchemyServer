@@ -15,7 +15,8 @@ repositories {
 dependencies {
     // Spring Boot Web Starter brings in all the necessary libraries for a web app.
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // Include any legacy jars you might have in the lib folder (if needed)
     implementation fileTree(dir: 'lib', include: ['*.jar'])
     
