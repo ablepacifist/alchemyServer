@@ -37,7 +37,7 @@ const Dashboard = () => {
     setLoading(true);
     console.log(`Sending fetch request to inventory API for player: ${playerId}`);
     try {
-      const response = await fetch(`http://45.44.165.5:8080/api/player/inventory/${playerId}`);
+      const response = await fetch(`http://96.37.95.22:8080/api/player/inventory/${playerId}`);
       console.log("HTTP status:", response.status);
       if (response.ok) {
         const data = await response.json();
@@ -74,7 +74,7 @@ const Dashboard = () => {
       setAnimationType('brew');
       setTimeout(() => setAnimationType(null), 2000);
 
-      const response = await fetch(`http://45.44.165.5:8080/api/potion/brew`, {
+      const response = await fetch(`http://96.37.95.22:8080/api/potion/brew`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -105,7 +105,7 @@ const Dashboard = () => {
             setAnimationType('forage');
       setTimeout(() => setAnimationType(null), 2000);
       
-      const response = await fetch(`http://45.44.165.5:8080/api/player/forage/${playerId}`, {
+      const response = await fetch(`http://96.37.95.22:8080/api/player/forage/${playerId}`, {
         method: 'GET',
       });
       if (response.ok) {
@@ -127,7 +127,7 @@ const Dashboard = () => {
     if (!selectedItem || playerId === undefined || playerId === null) return;
     if (selectedType === 'ingredient') {
       try {
-        const response = await fetch(`http://45.44.165.5:8080/api/player/ingredient/consume`, {
+        const response = await fetch(`http://96.37.95.22:8080/api/player/ingredient/consume`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ playerId, ingredientId: selectedItem.id })
@@ -148,7 +148,7 @@ const Dashboard = () => {
       }
     } else if (selectedType === 'potion') {
       try {
-        const response = await fetch(`http://45.44.165.5:8080/api/player/potion/consume`, {
+        const response = await fetch(`http://96.37.95.22:8080/api/player/potion/consume`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ playerId, potionId: selectedItem.id })

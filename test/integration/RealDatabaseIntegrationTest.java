@@ -49,7 +49,7 @@ public class RealDatabaseIntegrationTest {
     @Before
     public void setUp() {
         // Connect to the real database; ensure your HSQLDB server is running on localhost.
-        String jdbcUrl = "jdbc:hsqldb:hsql://localhost:9001/mydb";
+        String jdbcUrl = "jdbc:hsqldb:hsql://localhost:9002/mydb";
         try {
             db = new HSQLDatabase(jdbcUrl);
         } catch (SQLException | IOException e) {

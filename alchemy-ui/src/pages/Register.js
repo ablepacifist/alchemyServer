@@ -16,7 +16,7 @@ const Register = () => {
     try {
       // send the JSON package to the server
       // can replace the fetch call with '${API_URL}/api/auth/register' ?
-      const response = await fetch("http://45.44.165.5:8080/api/auth/register", {
+      const response = await fetch("http://96.37.95.22:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password, confirmPassword })

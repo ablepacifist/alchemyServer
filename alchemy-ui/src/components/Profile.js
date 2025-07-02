@@ -16,7 +16,7 @@ const Profile = () => {
     if (user === null || (user.id === undefined && user.id !== 0)) return;
     setLoading(true);
     try {
-      const response = await fetch(`http://45.44.165.5:8080/api/player/${user.id}`);
+      const response = await fetch(`http://96.37.95.22:8080/api/player/${user.id}`);
       if (response.ok) {
         const data = await response.json();
         setPlayer(data);
@@ -41,7 +41,7 @@ const Profile = () => {
   const handleLevelUp = async () => {
     if (user === null || (user.id === undefined && user.id !== 0)) return;
     try {
-      const response = await fetch(`http://45.44.165.5:8080/api/player/levelup`, {
+      const response = await fetch(`http://96.37.95.22:8080/api/player/levelup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ playerId: user.id, secretPassword })

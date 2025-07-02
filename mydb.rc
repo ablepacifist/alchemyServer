@@ -1,4 +1,4 @@
-url=jdbc:hsqldb:hsql://localhost:9001/mydb
+url=jdbc:hsqldb:hsql://localhost:9002/mydb
 user=SA
 password=
 

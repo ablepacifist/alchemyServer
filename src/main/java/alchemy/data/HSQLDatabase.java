@@ -39,7 +39,8 @@ public class HSQLDatabase implements IStubDatabase {
 
             HikariConfig config = new HikariConfig();
             //
-            config.setJdbcUrl("jdbc:hsqldb:hsql://45.44.165.5:9001/mydb"); // my public IP 1
+            config.setJdbcUrl("jdbc:hsqldb:hsql://localhost:9002/mydb");
+ // my public IP 1
 
             config.setUsername("SA");
             config.setMaximumPoolSize(12); // Up to 12 simultaneous connections

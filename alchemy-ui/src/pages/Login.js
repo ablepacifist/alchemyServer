@@ -17,7 +17,7 @@ const Login = () => {
     try {
       // this is the JSON package that will be sent to the server
       // can replace the fetch call with '${API_URL}/api/auth/login' ?
-      const response = await fetch("http://45.44.165.5:8080/api/auth/login", {
+      const response = await fetch("http://96.37.95.22:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })

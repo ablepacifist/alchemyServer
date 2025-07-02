@@ -14,7 +14,7 @@ const KnowledgeBook = () => {
         if (!user || (user.id === undefined && user.id !== 0)) return;
         setLoading(true);
         try {
-            const response = await fetch(`http://45.44.165.5:8080/api/player/knowledge/${user.id}`);
+            const response = await fetch(`http://96.37.95.22:8080/api/player/knowledge/${user.id}`);
             if (response.ok) {
                 const data = await response.json();
                 setKnowledge(data);
