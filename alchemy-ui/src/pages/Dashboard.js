@@ -37,7 +37,9 @@ const Dashboard = () => {
     setLoading(true);
     console.log(`Sending fetch request to inventory API for player: ${playerId}`);
     try {
-      const response = await fetch(`http://96.37.95.22:8080/api/player/inventory/${playerId}`);
+      const response = await fetch(`http://96.37.95.22:8080/api/player/inventory/${playerId}`,{
+        credentials: 'include'
+      });
       console.log("HTTP status:", response.status);
       if (response.ok) {
         const data = await response.json();
@@ -75,6 +77,7 @@ const Dashboard = () => {
       setTimeout(() => setAnimationType(null), 2000);
 
       const response = await fetch(`http://96.37.95.22:8080/api/potion/brew`, {
+        credentials: 'include',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,6 +109,7 @@ const Dashboard = () => {
       setTimeout(() => setAnimationType(null), 2000);
       
       const response = await fetch(`http://96.37.95.22:8080/api/player/forage/${playerId}`, {
+        credentials: 'include',
         method: 'GET',
       });
       if (response.ok) {
@@ -128,6 +132,7 @@ const Dashboard = () => {
     if (selectedType === 'ingredient') {
       try {
         const response = await fetch(`http://96.37.95.22:8080/api/player/ingredient/consume`, {
+          credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ playerId, ingredientId: selectedItem.id })
@@ -149,6 +154,7 @@ const Dashboard = () => {
     } else if (selectedType === 'potion') {
       try {
         const response = await fetch(`http://96.37.95.22:8080/api/player/potion/consume`, {
+          credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ playerId, potionId: selectedItem.id })

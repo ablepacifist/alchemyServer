@@ -12,24 +12,27 @@ const Profile = () => {
   const [error, setError] = useState('');
 
   // Fetch player details using the GET /api/player/{playerId} endpoint.
-  const fetchPlayerDetails = async () => {
-    if (user === null || (user.id === undefined && user.id !== 0)) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`http://96.37.95.22:8080/api/player/${user.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setPlayer(data);
-      } else {
-        setError("Failed to fetch player details.");
-      }
-    } catch (err) {
-      console.error("Error fetching player details:", err);
-      setError("Error fetching player details.");
-    } finally {
-      setLoading(false);
+const fetchPlayerDetails = async () => {
+  if (user === null || (user.id === undefined && user.id !== 0)) return;
+  setLoading(true);
+  try {
+    const response = await fetch(`http://96.37.95.22:8080/api/player/${user.id}`, {
+      credentials: 'include'
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setPlayer(data);
+    } else {
+      setError("Failed to fetch player details.");
     }
-  };
+  } catch (err) {
+    console.error("Error fetching player details:", err);
+    setError("Error fetching player details.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     if (user) {
@@ -42,6 +45,7 @@ const Profile = () => {
     if (user === null || (user.id === undefined && user.id !== 0)) return;
     try {
       const response = await fetch(`http://96.37.95.22:8080/api/player/levelup`, {
+        credentials: 'include',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ playerId: user.id, secretPassword })
