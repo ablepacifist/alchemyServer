@@ -55,9 +55,8 @@ function AppRoutes() {
       <Route path="/knowledge" element={
         <PrivateRoute><KnowledgeBook /></PrivateRoute>
       } />
-      <Route path="/about" element={
-        <PrivateRoute><About /></PrivateRoute>
-      } />
+      <Route path="/about" element={<About />} />
+
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
