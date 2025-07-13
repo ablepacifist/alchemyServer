@@ -26,13 +26,13 @@ import alchemy.object.Player;
 import alchemy.object.IInventory;
 import alchemy.object.IKnowledgeBook;
 
+@CrossOrigin(origins = "http://96.37.95.22:3000", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/player")
 public class PlayerController {
 
     @Autowired
     private PlayerManagerService playerManagerService;
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getPlayerById(@PathVariable int id) {
         Player player = playerManagerService.getPlayerById(id);

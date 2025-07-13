@@ -19,54 +19,69 @@ import alchemy.object.Potion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-@Component
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Service
-public class PlayerManager  implements PlayerManagerService{
+public class PlayerManager implements PlayerManagerService {
+
     private final IStubDatabase db;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public PlayerManager(IStubDatabase db) {
+    public PlayerManager(IStubDatabase db, PasswordEncoder passwordEncoder) {
         this.db = db;
+        this.passwordEncoder = passwordEncoder;
     }
-    public Player loginPlayer(String username, String password) {
+
+    @Override
+    public Player loginPlayer(String username, String rawPassword) {
         Player player = db.getPlayerByUsername(username);
+                System.out.println("Login input password: " + rawPassword);
+System.out.println("Stored player password: " + player.getPassword());
+System.out.println("Password match? " + passwordEncoder.matches(rawPassword, player.getPassword()));
+
         if (player == null) {
             throw new IllegalArgumentException("Invalid username. No such player exists.");
         }
 
-        if (!player.getPassword().equals(password)) {
+        // Use PasswordEncoder to verify hashed password
+        if (!passwordEncoder.matches(rawPassword, player.getPassword())) {
             throw new IllegalArgumentException("Invalid password. Please try again.");
         }
 
         return player;
     }
 
+    @Override
     public void registerPlayer(String username, String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
             throw new IllegalArgumentException("Passwords do not match");
         }
 
-        // Check if a player with this username already exists.
         Player existingPlayer = db.getPlayerByUsername(username);
         if (existingPlayer != null) {
             throw new IllegalArgumentException("Username already taken. Please choose a different username.");
         }
 
-        // Create the player.
         createPlayer(username, password);
     }
 
     /**
-     * Create a new player with an empty inventory and knowledge book.
+     * Create a new player with a hashed password, empty inventory, and knowledge book.
      */
-    public void createPlayer(String username, String password) {
+    public void createPlayer(String username, String rawPassword) {
         int playerId = db.getNextPlayerId();
         Inventory inventory = new Inventory();
         IKnowledgeBook knowledgeBook = new KnowledgeBook(new HashMap<>());
-        Player newPlayer = new Player(playerId, username, password, inventory, knowledgeBook); // Level starts at 1
+
+        // Hash the password before storing
+        String hashedPassword = passwordEncoder.encode(rawPassword);
+
+        Player newPlayer = new Player(playerId, username, hashedPassword, inventory, knowledgeBook);
         db.addPlayer(newPlayer);
         System.out.println("Player created: " + newPlayer);
     }
+
 
 
 

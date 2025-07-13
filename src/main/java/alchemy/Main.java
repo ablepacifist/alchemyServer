@@ -1,9 +1,15 @@
 package alchemy;
- 
+ import org.springframework.context.annotation.ComponentScan;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 // this will let sprnig boot search the appilcation for classes that are used in the api
 @SpringBootApplication
+@ComponentScan(basePackages = {
+    "alchemy",
+    "alchemy.api",
+    "alchemy.logic"
+})
 public class Main {
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
