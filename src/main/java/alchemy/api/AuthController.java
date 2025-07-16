@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://96.37.95.22:3000", allowCredentials = "true")
+@CrossOrigin(origins = "http://72.14.148.9:38770", allowCredentials = "true")
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired

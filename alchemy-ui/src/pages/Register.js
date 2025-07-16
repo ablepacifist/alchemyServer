@@ -16,12 +16,12 @@ const Register = () => {
     try {
       // send the JSON package to the server
       // can replace the fetch call with '${API_URL}/api/auth/register' ?
-      const response = await fetch("http://96.37.95.22:8080/api/auth/register", {
-        credentials: 'include',
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, confirmPassword })
-      });
+const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+  credentials: 'include',
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username, password, confirmPassword })
+});
       if (!response.ok) { // failed to register
         throw new Error('Registration failed');
       }

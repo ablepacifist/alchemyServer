@@ -21,7 +21,7 @@ const Profile = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://96.37.95.22:8080/api/player/${user.id}`,
+        `${process.env.REACT_APP_API_URL}/api/player/${user.id}`,
         { credentials: 'include' }
       );
       if (!res.ok) {
@@ -49,7 +49,7 @@ const Profile = () => {
 
     try {
       const res = await fetch(
-        `http://96.37.95.22:8080/api/player/levelup`,
+        `${process.env.REACT_APP_API_URL}/api/player/levelup`,
         {
           method: 'POST',
           credentials: 'include',
@@ -72,7 +72,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://96.37.95.22:8080/api/auth/logout', {
+      await fetch('${process.env.REACT_APP_API_URL}/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });

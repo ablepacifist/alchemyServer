@@ -25,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.*;
+import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.util.*;
@@ -60,10 +61,13 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .cors(cors -> cors.configurationSource(corsSource))
             .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/about", "/api/auth/register", "/api/auth/login", "/api/auth/me").permitAll()
-                .requestMatchers("/api/**").authenticated()
-            )
+.authorizeHttpRequests(auth -> auth
+    .requestMatchers("/**").permitAll()
+    .requestMatchers("/static/**", "/favicon.ico", "/manifest.json", "/logo*.png").permitAll()
+    .requestMatchers("/", "/about", "/api/auth/register", "/api/auth/login", "/api/auth/me").permitAll()
+    .requestMatchers("/api/**").authenticated()
+)
+
             .formLogin(form -> form.disable())
             .logout(logout -> logout
                 .logoutUrl("/api/auth/logout")
@@ -92,7 +96,14 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://96.37.95.22:3000"));
+config.setAllowedOrigins(List.of(
+    "http://awards-complications.gl.at.ply.gg:15289",   // React tunnel (optional)
+    "http://localhost:3000",                            // local dev
+    "http://72.14.148.9:38770"                          // Proton VPN frontend access
+));
+
+
+
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

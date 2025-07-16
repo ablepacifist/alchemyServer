@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 // this is apparently important if you want to have a very basic html hosted server
 // on the same ip as the main server
+/*
 @RestController
 @CrossOrigin(origins = "*")
 public class HomeController {
@@ -19,3 +20,4 @@ public class HomeController {
                "</body></html>";
     }
 }
+*/
