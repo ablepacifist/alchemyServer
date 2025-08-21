@@ -20,10 +20,11 @@ const Profile = () => {
 
     setLoading(true);
     try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/player/${user.id}`,
-        { credentials: 'include' }
-      );
+const res = await fetch(
+  `${process.env.REACT_APP_API_URL}/player/${user.id}`,
+  { credentials: 'include' }
+);
+
       if (!res.ok) {
         setError('Failed to fetch player details.');
       } else {
@@ -49,7 +50,7 @@ const Profile = () => {
 
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/player/levelup`,
+        `${process.env.REACT_APP_API_URL}/player/levelup`,
         {
           method: 'POST',
           credentials: 'include',
@@ -72,7 +73,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('${process.env.REACT_APP_API_URL}/api/auth/logout', {
+      await fetch('${process.env.REACT_APP_API_URL}/auth/logout', {
         method: 'POST',
         credentials: 'include',
       });

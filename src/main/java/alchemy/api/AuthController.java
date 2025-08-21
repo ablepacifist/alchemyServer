@@ -17,9 +17,9 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 
 import java.util.HashMap;
 import java.util.Map;
-
+//89.187.180.34
 @RestController
-@CrossOrigin(origins = "http://72.14.148.9:38770", allowCredentials = "true")
+@CrossOrigin(origins = "http://see-recover.gl.at.ply.gg:36567", allowCredentials = "true")
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired

@@ -15,12 +15,13 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, { // <-- Use API_URL from .env
-        credentials: 'include', // <-- Include cookies
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+const response = await fetch(`${API_URL}/auth/login`, {
+  credentials: "include",
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username, password })
+});
+
 
       if (!response.ok) {
         throw new Error('Login failed');

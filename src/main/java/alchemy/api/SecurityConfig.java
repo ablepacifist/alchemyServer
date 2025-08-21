@@ -97,9 +97,9 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
 config.setAllowedOrigins(List.of(
-    "http://awards-complications.gl.at.ply.gg:15289",   // React tunnel (optional)
+    "http://awards-complications.gl.at.ply.gg:15289",   // React tunnel 
     "http://localhost:3000",                            // local dev
-    "http://72.14.148.9:38770"                          // Proton VPN frontend access
+    "http://see-recover.gl.at.ply.gg:36567"                         
 ));
 
 

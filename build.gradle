@@ -11,6 +11,10 @@ sourceCompatibility = '17'
 repositories {
     mavenCentral()
 }
+tasks.named("bootRun") {
+    jvmArgs = ["-Djava.net.preferIPv4Stack=true"]
+}
+
 
 dependencies {
     // Spring Boot Web Starter brings in all the necessary libraries for a web app.

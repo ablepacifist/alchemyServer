@@ -16,7 +16,7 @@ const Register = () => {
     try {
       // send the JSON package to the server
       // can replace the fetch call with '${API_URL}/api/auth/register' ?
-const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/register`, {
+const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
   credentials: 'include',
   method: "POST",
   headers: { "Content-Type": "application/json" },
