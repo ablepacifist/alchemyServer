@@ -3,6 +3,8 @@ import { UserContext } from '../context/UserContext';
 import { useNavigate, Navigate } from 'react-router-dom';
 import background from '../assets/images/dashboard_background.jpg';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Profile = () => {
   // 1. Hooks always run in the same order
   const { user, setUser } = useContext(UserContext);
@@ -21,7 +23,7 @@ const Profile = () => {
     setLoading(true);
     try {
 const res = await fetch(
-  `${process.env.REACT_APP_API_URL}/player/${user.id}`,
+  `${API_URL}/player/${user.id}`,
   { credentials: 'include' }
 );
 
@@ -50,7 +52,7 @@ const res = await fetch(
 
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/player/levelup`,
+        `${API_URL}/player/levelup`,
         {
           method: 'POST',
           credentials: 'include',
@@ -73,7 +75,7 @@ const res = await fetch(
 
   const handleLogout = async () => {
     try {
-      await fetch('${process.env.REACT_APP_API_URL}/auth/logout', {
+      await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });

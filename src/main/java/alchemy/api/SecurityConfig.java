@@ -97,9 +97,13 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
 config.setAllowedOrigins(List.of(
-    "http://awards-complications.gl.at.ply.gg:15289",   // React tunnel 
+    "http://group-net.gl.at.ply.gg:58938",             // New frontend tunnel
     "http://localhost:3000",                            // local dev
-    "http://see-recover.gl.at.ply.gg:36567"                         
+    "http://localhost:3001",                            // local dev alt port
+    "http://127.0.0.1:3000",                           // local dev
+    "http://127.0.0.1:3001",                           // local dev alt port
+    "http://see-recover.gl.at.ply.gg:36567",           // backend tunnel
+    "http://147.185.221.211:58938"                     // Bilbo PC frontend URL
 ));
 
 

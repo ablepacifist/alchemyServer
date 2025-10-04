@@ -9,6 +9,8 @@ import forageIcon from '../assets/images/forage.png';
 import consumePotionIcon from '../assets/images/drink.png';
 import consumeIngredientIcon from '../assets/images/consume.png';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);
@@ -37,7 +39,7 @@ const Dashboard = () => {
     setLoading(true);
     console.log(`Sending fetch request to inventory API for player: ${playerId}`);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/player/inventory/${playerId}`,{
+      const response = await fetch(`${API_URL}/player/inventory/${playerId}`,{
         credentials: 'include'
       });
       console.log("HTTP status:", response.status);
@@ -76,7 +78,7 @@ const Dashboard = () => {
       setAnimationType('brew');
       setTimeout(() => setAnimationType(null), 2000);
 
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/potion/brew`, {
+      const response = await fetch(`${API_URL}/potion/brew`, {
         credentials: 'include',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -108,7 +110,7 @@ const Dashboard = () => {
             setAnimationType('forage');
       setTimeout(() => setAnimationType(null), 2000);
       
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/player/forage/${playerId}`, {
+      const response = await fetch(`${API_URL}/player/forage/${playerId}`, {
         credentials: 'include',
         method: 'GET',
       });
@@ -131,7 +133,7 @@ const Dashboard = () => {
     if (!selectedItem || playerId === undefined || playerId === null) return;
     if (selectedType === 'ingredient') {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/player/ingredient/consume`, {
+        const response = await fetch(`${API_URL}/player/ingredient/consume`, {
           credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -153,7 +155,7 @@ const Dashboard = () => {
       }
     } else if (selectedType === 'potion') {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/player/potion/consume`, {
+        const response = await fetch(`${API_URL}/player/potion/consume`, {
           credentials: 'include',
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

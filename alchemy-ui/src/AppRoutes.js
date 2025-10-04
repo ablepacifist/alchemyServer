@@ -19,8 +19,7 @@ function PrivateRoute({ children }) {
 }
 
 function AppRoutes() {
-  const { user, setUser } = useContext(UserContext); // <-- ADDED 'user' to access current state
-
+  const { user, setUser } = useContext(UserContext); 
   useEffect(() => {
     fetch(`${API_URL}/api/auth/me`, {
       credentials: 'include'

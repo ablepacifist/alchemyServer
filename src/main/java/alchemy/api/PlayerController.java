@@ -26,7 +26,7 @@ import alchemy.object.Player;
 import alchemy.object.IInventory;
 import alchemy.object.IKnowledgeBook;
 
-@CrossOrigin(origins = "http://see-recover.gl.at.ply.gg:36567", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/player")
 public class PlayerController {

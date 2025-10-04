@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 //89.187.180.34
 @RestController
-@CrossOrigin(origins = "http://see-recover.gl.at.ply.gg:36567", allowCredentials = "true")
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired

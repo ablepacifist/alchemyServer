@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import background from '../assets/images/background.jpg';
+
+const API_URL = process.env.REACT_APP_API_URL;
 // register component acts much the same way as the lognin component
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -16,7 +18,7 @@ const Register = () => {
     try {
       // send the JSON package to the server
       // can replace the fetch call with '${API_URL}/api/auth/register' ?
-const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/register`, {
+const response = await fetch(`${API_URL}/auth/register`, {
   credentials: 'include',
   method: "POST",
   headers: { "Content-Type": "application/json" },
