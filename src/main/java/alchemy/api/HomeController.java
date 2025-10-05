@@ -2,11 +2,11 @@ package alchemy.api;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-// this is apparently important if you want to have a very basic html hosted server
-// on the same ip as the main server
-/*
+
 @RestController
+@RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class HomeController {
 
@@ -19,5 +19,9 @@ public class HomeController {
                "<p>Your API is working and accessible. Alex is the best</p>" +
                "</body></html>";
     }
+    
+    @GetMapping("/health")
+    public String health() {
+        return "{\"status\":\"Alchemy Server is running\",\"service\":\"alchemy\"}";
+    }
 }
-*/
