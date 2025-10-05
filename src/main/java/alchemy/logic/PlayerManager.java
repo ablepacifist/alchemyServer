@@ -1,5 +1,6 @@
 package alchemy.logic;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,10 @@ System.out.println("Password match? " + passwordEncoder.matches(rawPassword, pla
             throw new IllegalArgumentException("Invalid password. Please try again.");
         }
 
+        // Update last login date
+        player.setLastLoginDate(LocalDateTime.now());
+        updatePlayerLastLogin(player.getId(), player.getLastLoginDate());
+
         return player;
     }
 
@@ -78,6 +83,10 @@ System.out.println("Password match? " + passwordEncoder.matches(rawPassword, pla
         String hashedPassword = passwordEncoder.encode(rawPassword);
 
         Player newPlayer = new Player(playerId, username, hashedPassword, inventory, knowledgeBook);
+        // Set default display name to username and registration date to now
+        newPlayer.setDisplayName(username);
+        newPlayer.setRegistrationDate(java.time.LocalDateTime.now());
+        
         db.addPlayer(newPlayer);
         System.out.println("Player created: " + newPlayer);
     }
@@ -209,6 +218,13 @@ System.out.println("Password match? " + passwordEncoder.matches(rawPassword, pla
             return true;
         }
         return false;
+    }
+
+    /**
+     * Update the last login date for a player
+     */
+    private void updatePlayerLastLogin(int playerId, LocalDateTime lastLoginDate) {
+        db.updatePlayerLastLogin(playerId, lastLoginDate);
     }
 
     

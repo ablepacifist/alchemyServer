@@ -53,6 +53,7 @@ public interface IStubDatabase {
     void addPotion(Potion potion);
 
     void updatePlayerLevel(int id, int level);
+    void updatePlayerLastLogin(int playerId, java.time.LocalDateTime lastLoginDate);
     //void resetDatabase() throws SQLException;
     void deletePlayer(int playerId) throws SQLException;
 }
