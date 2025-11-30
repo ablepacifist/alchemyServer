@@ -20,14 +20,16 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
     @Autowired
-private AuthenticationManager authManager;
+    private AuthenticationManager authManager;
 
     @Autowired
     private PlayerManagerService playerManagerService;
-@PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody Map<String, String> payload, HttpServletRequest req) {
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> payload, HttpServletRequest req) {
     String username = payload.get("username");
     String password = payload.get("password");
 
@@ -35,11 +37,8 @@ public ResponseEntity<?> login(@RequestBody Map<String, String> payload, HttpSer
         var authToken = new UsernamePasswordAuthenticationToken(username, password);
         var auth = authManager.authenticate(authToken);
 
-        // This line makes the session persist
         SecurityContextHolder.getContext().setAuthentication(auth);
         req.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
-
-        //req.getSession(true); // Ensures session is created
 
         CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
         Map<String, Object> body = Map.of(

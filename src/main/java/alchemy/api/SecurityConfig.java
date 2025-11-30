@@ -24,10 +24,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.cors.*;
 
-import java.io.IOException;
 import java.util.*;
 
 @Configuration
@@ -61,34 +59,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsSource) throws Exception {
         http
-            .authenticationProvider(authenticationProvider())
             .cors(cors -> cors.configurationSource(corsSource))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/about", "/api/auth/register", "/api/auth/login", "/api/auth/me").permitAll()
-                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()
             )
-            .formLogin(form -> form.disable())
-            .logout(logout -> logout
-                .logoutUrl("/api/auth/logout")
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-            );
+            .formLogin(form -> form.disable());
 
         return http.build();
-    }
-
-    private void onLoginSuccess(HttpServletRequest req,
-                                HttpServletResponse res,
-                                Authentication auth) throws IOException {
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Map<String, Object> body = Map.of(
-            "playerId", userDetails.getPlayer().getId(),
-            "username", userDetails.getPlayer().getUsername()
-        );
-
-        res.setStatus(HttpServletResponse.SC_OK);
-        res.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(res.getWriter(), body);
     }
 
     @Bean
@@ -97,9 +75,13 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         // Read allowed origins from application.properties
+        System.out.println("=== CORS Configuration ===");
+        System.out.println("Configured origins: " + Arrays.asList(allowedOrigins.split(",")));
+        System.out.println("========================");
         config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("X-Auth-Token"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

@@ -28,6 +28,7 @@ import alchemy.object.IKnowledgeBook;
 
 @RestController
 @RequestMapping("/api/player")
+@CrossOrigin(origins = "*")
 public class PlayerController {
 
     @Autowired
