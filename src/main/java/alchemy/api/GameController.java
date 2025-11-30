@@ -23,19 +23,37 @@ public class GameController {
 
     @PostMapping("/start")
     public ResponseEntity<?> startGame() {
-        gameManagerService.startGame();
-        return ResponseEntity.ok("Game started.");
+        try {
+            gameManagerService.startGame();
+            return ResponseEntity.ok("Game started.");
+        } catch (Exception e) {
+            System.err.println("Error in startGame: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error starting game: " + e.getMessage());
+        }
     }
 
     @PostMapping("/end")
     public ResponseEntity<?> endGame() {
-        gameManagerService.endGame();
-        return ResponseEntity.ok("Game ended.");
+        try {
+            gameManagerService.endGame();
+            return ResponseEntity.ok("Game ended.");
+        } catch (Exception e) {
+            System.err.println("Error in endGame: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error ending game: " + e.getMessage());
+        }
     }
 
     @GetMapping("/forage/{playerId}")
     public ResponseEntity<?> forage(@PathVariable int playerId) {
-        String ingredientName = gameManagerService.forage(playerId);
-        return ResponseEntity.ok("Foraged ingredient: " + ingredientName);
+        try {
+            String ingredientName = gameManagerService.forage(playerId);
+            return ResponseEntity.ok("Foraged ingredient: " + ingredientName);
+        } catch (Exception e) {
+            System.err.println("Error in GameController.forage: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error during foraging: " + e.getMessage());
+        }
     }
 }

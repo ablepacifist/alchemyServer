@@ -26,29 +26,35 @@ public class PotionController {
     
     @PostMapping("/brew")
     public ResponseEntity<?> brewPotion(@RequestBody Map<String, Object> payload) {
-        int playerId = (int) payload.get("playerId");
-        int ingredientId1 = (int) payload.get("ingredientId1");
-        int ingredientId2 = (int) payload.get("ingredientId2");
+        try {
+            int playerId = (int) payload.get("playerId");
+            int ingredientId1 = (int) payload.get("ingredientId1");
+            int ingredientId2 = (int) payload.get("ingredientId2");
 
-        // Retrieve the ingredients from the player's inventory.
-        IIngredient ingredient1 = fetchIngredientById(playerId, ingredientId1);
-        IIngredient ingredient2 = fetchIngredientById(playerId, ingredientId2);
-        
-        
-        if (ingredient1 == null || ingredient2 == null) {
-            return ResponseEntity.badRequest().body("Invalid ingredient selection.");
-        }
+            // Retrieve the ingredients from the player's inventory.
+            IIngredient ingredient1 = fetchIngredientById(playerId, ingredientId1);
+            IIngredient ingredient2 = fetchIngredientById(playerId, ingredientId2);
+            
+            
+            if (ingredient1 == null || ingredient2 == null) {
+                return ResponseEntity.badRequest().body("Invalid ingredient selection.");
+            }
 
-        Potion potion = gameManagerService
-                .getPotionManager()
-                .brewPotion(playerId, ingredient1, ingredient2);
-        if (potion == null) {
-            return ResponseEntity.badRequest().body("Potion brewing failed.");
+            Potion potion = gameManagerService
+                    .getPotionManager()
+                    .brewPotion(playerId, ingredient1, ingredient2);
+            if (potion == null) {
+                return ResponseEntity.badRequest().body("Potion brewing failed.");
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Potion brewed successfully");
+            response.put("potion", potion);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in brewPotion: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error brewing potion: " + e.getMessage());
         }
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Potion brewed successfully");
-        response.put("potion", potion);
-        return ResponseEntity.ok(response);
     }
 
 private IIngredient fetchIngredientById(int playerId, int ingredientId) {

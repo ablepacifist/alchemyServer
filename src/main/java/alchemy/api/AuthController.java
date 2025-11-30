@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://96.37.95.22:3000", allowCredentials = "true")
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
@@ -50,42 +49,59 @@ public ResponseEntity<?> login(@RequestBody Map<String, String> payload, HttpSer
         return ResponseEntity.ok(body);
 
     } catch (AuthenticationException ex) {
+        System.err.println("Authentication failed for user: " + username);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    } catch (Exception ex) {
+        System.err.println("Error in login: " + ex.getMessage());
+        ex.printStackTrace();
+        return ResponseEntity.status(500).body("Error during login: " + ex.getMessage());
     }
 }
 
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Map<String, String> payload) {
-        String username = payload.get("username");
-        String password = payload.get("password");
+        try {
+            String username = payload.get("username");
+            String password = payload.get("password");
 
-        if (playerManagerService.getPlayerByUsername(username) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                                 .body("Username is already taken.");
+            if (playerManagerService.getPlayerByUsername(username) != null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                     .body("Username is already taken.");
+            }
+
+            playerManagerService.registerPlayer(username, password, password);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Registration successful");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in register: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error during registration: " + e.getMessage());
         }
-
-        playerManagerService.registerPlayer(username, password, password);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Registration successful");
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser() {
-        // Spring Security will inject Authentication; we can pull the principal from SecurityContext
-        var auth = org.springframework.security.core.context.SecurityContextHolder
-                       .getContext()
-                       .getAuthentication();
+        try {
+            // Spring Security will inject Authentication; we can pull the principal from SecurityContext
+            var auth = org.springframework.security.core.context.SecurityContextHolder
+                           .getContext()
+                           .getAuthentication();
 
-        if (auth == null || !auth.isAuthenticated() ||
-            auth.getPrincipal().equals("anonymousUser")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if (auth == null || !auth.isAuthenticated() ||
+                auth.getPrincipal().equals("anonymousUser")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+            Player player = userDetails.getPlayer();
+            return ResponseEntity.ok(player);
+        } catch (Exception e) {
+            System.err.println("Error in getCurrentUser: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving current user: " + e.getMessage());
         }
-
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Player player = userDetails.getPlayer();
-        return ResponseEntity.ok(player);
     }
 }

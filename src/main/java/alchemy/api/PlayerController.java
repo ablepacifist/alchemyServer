@@ -26,7 +26,6 @@ import alchemy.object.Player;
 import alchemy.object.IInventory;
 import alchemy.object.IKnowledgeBook;
 
-@CrossOrigin(origins = "http://96.37.95.22:3000", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/player")
 public class PlayerController {
@@ -35,26 +34,44 @@ public class PlayerController {
     private PlayerManagerService playerManagerService;
     @GetMapping("/{id}")
     public ResponseEntity<?> getPlayerById(@PathVariable int id) {
-        Player player = playerManagerService.getPlayerById(id);
-        if (player == null) {
-            return ResponseEntity.notFound().build();
+        try {
+            Player player = playerManagerService.getPlayerById(id);
+            if (player == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(player);
+        } catch (Exception e) {
+            System.err.println("Error in getPlayerById: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving player: " + e.getMessage());
         }
-        return ResponseEntity.ok(player);
     }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<?> getPlayerByUsername(@PathVariable String username) {
-        Player player = playerManagerService.getPlayerByUsername(username);
-        if (player == null) {
-            return ResponseEntity.notFound().build();
+        try {
+            Player player = playerManagerService.getPlayerByUsername(username);
+            if (player == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(player);
+        } catch (Exception e) {
+            System.err.println("Error in getPlayerByUsername: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving player: " + e.getMessage());
         }
-        return ResponseEntity.ok(player);
     }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllPlayers() {
-        List<Player> players = (List<Player>) playerManagerService.getAllPlayers();
-        return ResponseEntity.ok(players);
+        try {
+            List<Player> players = (List<Player>) playerManagerService.getAllPlayers();
+            return ResponseEntity.ok(players);
+        } catch (Exception e) {
+            System.err.println("Error in getAllPlayers: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error retrieving players: " + e.getMessage());
+        }
     }
 
     // -----------------------------------------------
@@ -62,13 +79,14 @@ public class PlayerController {
     // -----------------------------------------------
  @GetMapping("/inventory/{playerId}")
 public ResponseEntity<?> getInventory(@PathVariable int playerId) {
-    IInventory inventory = playerManagerService.getInventory(playerId);
-    if (inventory == null) {
-        return ResponseEntity.notFound().build();
-    }
+    try {
+        IInventory inventory = playerManagerService.getInventory(playerId);
+        if (inventory == null) {
+            return ResponseEntity.notFound().build();
+        }
 
-    // Get the player's knowledge book (used for filtering ingredient effects)
-    IKnowledgeBook kb = playerManagerService.getKnowledgeBook(playerId);
+        // Get the player's knowledge book (used for filtering ingredient effects)
+        IKnowledgeBook kb = playerManagerService.getKnowledgeBook(playerId);
 
     List<Map<String, Object>> ingredientsList = new ArrayList<>();
     inventory.getIngredients().forEach((ingredient, quantity) -> {
@@ -126,6 +144,11 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
     response.put("potions", potionsList);
 
     return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        System.err.println("Error in getInventory: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error retrieving inventory: " + e.getMessage());
+    }
 }
 
 
@@ -134,13 +157,19 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
     // -----------------------------------------------
     @GetMapping("/forage/{playerId}")
     public ResponseEntity<?> forage(@PathVariable int playerId) {
-        String foragedIngredient = playerManagerService.forage(playerId);
-        if (foragedIngredient.isEmpty()) {
-            return ResponseEntity.badRequest().body("No ingredient available to forage.");
+        try {
+            String foragedIngredient = playerManagerService.forage(playerId);
+            if (foragedIngredient.isEmpty()) {
+                return ResponseEntity.badRequest().body("No ingredient available to forage.");
+            }
+            Map<String, String> response = new HashMap<>();
+            response.put("forage", foragedIngredient);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in forage: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error during foraging: " + e.getMessage());
         }
-        Map<String, String> response = new HashMap<>();
-        response.put("forage", foragedIngredient);
-        return ResponseEntity.ok(response);
     }
 
     /**
@@ -160,7 +189,9 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
             playerManagerService.consumeIngredient(playerId, ingredient);
             return ResponseEntity.ok("Ingredient consumed successfully.");
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            System.err.println("Error in consumeIngredient: " + ex.getMessage());
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body("Error consuming ingredient: " + ex.getMessage());
         }
     }
 
@@ -181,7 +212,9 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
             playerManagerService.consumePotion(playerId, potion);
             return ResponseEntity.ok("Potion consumed successfully.");
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body(ex.getMessage());
+            System.err.println("Error in consumePotion: " + ex.getMessage());
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body("Error consuming potion: " + ex.getMessage());
         }
     }
 
@@ -201,19 +234,22 @@ public ResponseEntity<?> levelUpPlayer(@RequestBody Map<String, Object> payload)
         // Return the updated player object (or just a success message as you prefer).
         return ResponseEntity.ok(player);
     } catch (Exception ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+        System.err.println("Error in levelUpPlayer: " + ex.getMessage());
+        ex.printStackTrace();
+        return ResponseEntity.status(500).body("Error leveling up player: " + ex.getMessage());
     }
 }
 
 
 @GetMapping("/knowledge/{playerId}")
 public ResponseEntity<?> getKnowledgeBook(@PathVariable int playerId) {
-    IKnowledgeBook kb = playerManagerService.getKnowledgeBook(playerId);
-    IInventory inventory = playerManagerService.getInventory(playerId); // Get inventory for ingredient names
-    
-    if (kb == null || inventory == null) {
-        return ResponseEntity.notFound().build();
-    }
+    try {
+        IKnowledgeBook kb = playerManagerService.getKnowledgeBook(playerId);
+        IInventory inventory = playerManagerService.getInventory(playerId); // Get inventory for ingredient names
+        
+        if (kb == null || inventory == null) {
+            return ResponseEntity.notFound().build();
+        }
     
     Map<Integer, List<IEffect>> knowledgeMap = kb.toMap();
     List<Map<String, Object>> knowledgeList = new ArrayList<>();
@@ -248,6 +284,11 @@ public ResponseEntity<?> getKnowledgeBook(@PathVariable int playerId) {
     }
     
     return ResponseEntity.ok(knowledgeList);
+    } catch (Exception e) {
+        System.err.println("Error in getKnowledgeBook: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error retrieving knowledge book: " + e.getMessage());
+    }
 }
 
 
