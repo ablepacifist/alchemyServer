@@ -96,7 +96,14 @@ public class AuthController {
 
             CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
             Player player = userDetails.getPlayer();
-            return ResponseEntity.ok(player);
+            
+            // Return a safe DTO without password
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", player.getId());
+            response.put("username", player.getUsername());
+            response.put("level", player.getLevel());
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("Error in getCurrentUser: " + e.getMessage());
             e.printStackTrace();
