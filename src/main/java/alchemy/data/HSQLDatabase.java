@@ -38,9 +38,8 @@ public class HSQLDatabase implements IStubDatabase {
             Class.forName("org.hsqldb.jdbc.JDBCDriver"); // Ensure the driver is loaded
 
             HikariConfig config = new HikariConfig();
-            //
+            // Use server mode - expects HSQLDB server running on port 9002
             config.setJdbcUrl("jdbc:hsqldb:hsql://localhost:9002/mydb");
- // my public IP 1
 
             config.setUsername("SA");
             config.setMaximumPoolSize(12); // Up to 12 simultaneous connections
