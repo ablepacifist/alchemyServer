@@ -90,3 +90,13 @@ local.properties
 application-local.properties
 application-dev.properties
 application-prod.properties
+
+# Database files
+*.lck
+*.lobs
+alchemydb.*
+mydb.*
+
+# Build
+build/
+.gradle/
