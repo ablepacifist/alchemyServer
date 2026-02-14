@@ -27,6 +27,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.*;
 
 import java.util.*;
+import java.util.ArrayList;
 
 @Configuration
 @EnableWebSecurity
@@ -74,12 +75,40 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        // Read allowed origins from application.properties
-        System.out.println("=== CORS Configuration ===");
-        System.out.println("Configured origins: " + Arrays.asList(allowedOrigins.split(",")));
+        
+        // Parse origins from application.properties
+        List<String> configuredOrigins = Arrays.asList(allowedOrigins.split(","));
+        
+        // Separate exact origins from wildcard patterns
+        List<String> exactOrigins = new ArrayList<>();
+        List<String> originPatterns = new ArrayList<>();
+        
+        for (String origin : configuredOrigins) {
+            String trimmed = origin.trim();
+            if (trimmed.contains("*")) {
+                originPatterns.add(trimmed);
+            } else {
+                exactOrigins.add(trimmed);
+            }
+        }
+        
+        // Add Cloudflare tunnel domains
+        originPatterns.add("https://alex-dyakin.com");
+        originPatterns.add("https://*.alex-dyakin.com");
+        
+        System.out.println("=== Alchemy CORS Configuration ===");
+        System.out.println("Exact origins: " + exactOrigins);
+        System.out.println("Origin patterns: " + originPatterns);
         System.out.println("========================");
-        config.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        
+        if (!exactOrigins.isEmpty()) {
+            config.setAllowedOrigins(exactOrigins);
+        }
+        if (!originPatterns.isEmpty()) {
+            config.setAllowedOriginPatterns(originPatterns);
+        }
+        
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","HEAD"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("X-Auth-Token"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
