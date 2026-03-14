@@ -96,6 +96,14 @@ public class SecurityConfig {
         originPatterns.add("https://alex-dyakin.com");
         originPatterns.add("https://*.alex-dyakin.com");
         
+        // Add PlayIt tunnel patterns
+        originPatterns.add("http://209.25.140.16:*");
+        originPatterns.add("https://209.25.140.16:*");
+        originPatterns.add("http://*.playit.pub:*");
+        originPatterns.add("https://*.playit.pub:*");
+        originPatterns.add("http://*.with.playit.plus:*");
+        originPatterns.add("https://*.with.playit.plus:*");
+        
         System.out.println("=== Alchemy CORS Configuration ===");
         System.out.println("Exact origins: " + exactOrigins);
         System.out.println("Origin patterns: " + originPatterns);
