@@ -1,6 +1,7 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { UserContext } from '../context/UserContext';
 import { useNavigate, Navigate } from 'react-router-dom';
+import { useAvatar } from '../hooks/useAvatar';
 import background from '../assets/images/dashboard_background.jpg';
 
 const Profile = () => {
@@ -12,6 +13,11 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [secretPassword, setSecretPassword] = useState('');
   const [error, setError] = useState('');
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarMsg, setAvatarMsg] = useState('');
+  const fileInputRef = useRef(null);
+
+  const { avatarUrl, uploadAvatar, removeAvatar } = useAvatar(user?.username);
 
   // 2. Memoize the fetch so useEffect deps are satisfied
   const fetchPlayerDetails = useCallback(async () => {
@@ -87,6 +93,39 @@ const Profile = () => {
     navigate('/dashboard');
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarMsg('File must be under 2 MB');
+      return;
+    }
+    setAvatarUploading(true);
+    setAvatarMsg('');
+    try {
+      await uploadAvatar(file, user?.id);
+      setAvatarMsg('Avatar updated!');
+    } catch (err) {
+      setAvatarMsg('Upload failed — bridge may be offline');
+    } finally {
+      setAvatarUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    setAvatarUploading(true);
+    setAvatarMsg('');
+    try {
+      await removeAvatar(user?.id);
+      setAvatarMsg('Avatar removed');
+    } catch {
+      setAvatarMsg('Remove failed');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   // 5. Redirect guard *after* all hooks
   if (!user) {
     return <Navigate to="/login" />;
@@ -148,6 +187,70 @@ const Profile = () => {
     <div style={containerStyle}>
       <div style={cardStyle}>
         <h1 style={headingStyle}>Profile</h1>
+
+        {/* Avatar Section */}
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <div
+            style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }}
+            onClick={() => fileInputRef.current?.click()}
+            title="Click to change avatar"
+          >
+            <img
+              src={avatarUrl}
+              alt={`${user.username}'s avatar`}
+              style={{
+                width: 110,
+                height: 110,
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '3px solid #61dafb',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+              }}
+            />
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/gif,image/webp"
+            style={{ display: 'none' }}
+            onChange={handleAvatarUpload}
+          />
+          <div style={{ marginTop: '0.6rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarUploading}
+              style={{
+                ...buttonStyle,
+                margin: 0,
+                padding: '0.35rem 0.9rem',
+                fontSize: '0.85rem',
+                opacity: avatarUploading ? 0.6 : 1,
+              }}
+            >
+              {avatarUploading ? 'Uploading…' : 'Upload Photo'}
+            </button>
+            <button
+              onClick={handleAvatarRemove}
+              disabled={avatarUploading}
+              style={{
+                ...buttonStyle,
+                margin: 0,
+                padding: '0.35rem 0.9rem',
+                fontSize: '0.85rem',
+                backgroundColor: 'transparent',
+                border: '1px solid #ccc',
+                color: '#666',
+              }}
+            >
+              Remove
+            </button>
+          </div>
+          {avatarMsg && (
+            <p style={{ marginTop: '0.4rem', fontSize: '0.85rem', color: avatarMsg.includes('fail') || avatarMsg.includes('must') ? '#e74c3c' : '#27ae60' }}>
+              {avatarMsg}
+            </p>
+          )}
+        </div>
 
         {loading ? (
           <p style={textStyle}>Loading...</p>
