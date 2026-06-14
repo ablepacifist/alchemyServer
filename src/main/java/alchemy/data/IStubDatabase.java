@@ -5,6 +5,7 @@ import java.util.Map;
 import java.sql.SQLException;
 import java.util.Collection; 
 
+import  alchemy.object.Holdfast;
 import  alchemy.object.IEffect;
 import  alchemy.object.IIngredient;
 import  alchemy.object.IInventory;
@@ -55,4 +56,15 @@ public interface IStubDatabase {
     void updatePlayerLevel(int id, int level);
     //void resetDatabase() throws SQLException;
     void deletePlayer(int playerId) throws SQLException;
+
+    // Holdfast CRUD
+    void addHoldfast(Holdfast holdfast);
+    Holdfast getHoldfast(String groupName);
+    List<Holdfast> getAllHoldfasts();
+    void updateHoldfast(Holdfast holdfast);
+    void deleteHoldfast(String groupName);
+
+    // Holdfast event log
+    void addHoldfastEvent(int holdfastId, int dayNumber, String message);
+    List<Map<String, Object>> getHoldfastEvents(int holdfastId);
 }
