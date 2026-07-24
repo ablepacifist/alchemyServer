@@ -26,15 +26,26 @@ public class BuildingConfig {
                 "Increases protection (+10), requires daily wages",
                 "protectionBonus", 10,
                 "resourceCost", Map.of("wood", 4)));
-        // MATERIAL PRODUCER: wheat_field harvests food every 14 days (auto-replants)
+        // FOOD STORAGE: granary extends food shelf life by 15 days per building
+        BUILDING_TYPES.put("granary", b("Granary", 80, 30, 3, 0, 5, 0, 0,
+                "Stores food safely, extends food shelf life by 15 days per granary"));
+        // MATERIAL PRODUCER: wheat_field harvests food every 14 days (annual — needs manual replanting)
         BUILDING_TYPES.put("wheat_field", b("Wheat Field", 50, 15, null, 0, 12, 0, 0,
-                "Produces 20 food every 14 days, auto-replants after harvest",
+                "Produces 20 food every 14 days. Annual — must be replanted after harvest.",
                 "harvestDays", 14, "harvestFood", 20));
+        // MATERIAL PRODUCER: rye_field harvests more food every 28 days (annual)
+        BUILDING_TYPES.put("rye_field", b("Rye Field", 65, 20, null, 0, 10, 0, 0,
+                "Produces 40 food every 28 days. Annual — must be replanted after harvest.",
+                "harvestDays", 28, "harvestFood", 40));
 
-        // TIER 2: Growing Settlement (30-60 pop)
-        // MATERIAL PRODUCER: vegetable_garden harvests food every 10 days
+        // TIER 2: Growing Settlement (20-60 pop)
+        // MATERIAL PRODUCER: berry_patch harvests fast small yield every 7 days (perennial)
+        BUILDING_TYPES.put("berry_patch", b("Berry Patch", 40, 15, 4, 0, 6, 1, 20,
+                "Produces 8 food every 7 days. Perennial — replants itself.",
+                "harvestDays", 7, "harvestFood", 8));
+        // MATERIAL PRODUCER: vegetable_garden harvests food every 10 days (annual)
         BUILDING_TYPES.put("vegetable_garden", b("Vegetable Garden", 45, 15, 3, 0, 8, 1, 30,
-                "Produces 10 food every 10 days, auto-replants",
+                "Produces 10 food every 10 days. Annual — must be replanted after harvest.",
                 "harvestDays", 10, "harvestFood", 10));
         // MATERIAL PRODUCER: orchard harvests food + small gold every 30 days
         BUILDING_TYPES.put("orchard", b("Orchard", 150, 40, 2, 0, 10, 2, 50,
@@ -53,6 +64,11 @@ public class BuildingConfig {
                 "Reduces all building costs by 10%",
                 "buildingDiscount", 0.1));
 
+        // MATERIAL PRODUCER: mushroom_cave harvests every 21 days (perennial, requires mine)
+        BUILDING_TYPES.put("mushroom_cave", b("Mushroom Cave", 150, 60, 2, 0, 14, 2, 50,
+                "Produces 25 food every 21 days. Perennial. Requires a Mine.",
+                "harvestDays", 21, "harvestFood", 25, "requires", "mine"));
+
         // TIER 3: Established Town (40-80 pop) — most require stone/wood
         BUILDING_TYPES.put("chapel", b("Chapel", 250, 0, 1, 0, 21, 15, 40,
                 "Provides spiritual guidance, major happiness boost",
@@ -61,6 +77,10 @@ public class BuildingConfig {
                 "Trading hub, +10% all gold production",
                 "silverMultiplier", 1.1,
                 "resourceCost", Map.of("wood", 5, "stone", 5)));
+        // FOOD MARKET: when enabled, sells surplus food for gold profit (requires granary)
+        BUILDING_TYPES.put("food_market", b("Food Market", 400, 120, 2, 10, 20, 3, 60,
+                "When enabled, sells surplus food for gold (5 food/day → 4g). Requires a Granary.",
+                "requires", "granary"));
         BUILDING_TYPES.put("festival_ground", b("Festival Ground", 220, 0, 1, 0, 14, 10, 70,
                 "Monthly festivals give +80g, boosts happiness",
                 "monthlyGold", 80,
@@ -180,6 +200,15 @@ public class BuildingConfig {
                 if (population >= 120) bonus = 1;
                 break;
             case "market":
+                if (population >= 180) bonus = 1;
+                break;
+            case "berry_patch":
+                if (population >= 100) bonus = 2;
+                break;
+            case "mushroom_cave":
+                if (population >= 150) bonus = 1;
+                break;
+            case "food_market":
                 if (population >= 180) bonus = 1;
                 break;
         }

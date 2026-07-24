@@ -16,4 +16,6 @@ public interface HoldfastManagerService {
     Map<String, Object> getStatus(String groupName);
     Holdfast importHoldfast(Holdfast holdfast);
     List<Map<String, Object>> getEvents(String groupName);
+    Map<String, Object> replant(String groupName, String fieldType);
+    Holdfast toggleFoodMarket(String groupName);
 }

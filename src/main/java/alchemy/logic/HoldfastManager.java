@@ -14,6 +14,11 @@ public class HoldfastManager implements HoldfastManagerService {
 
     private final IStubDatabase db;
     private static final double HAPPINESS_CHANGE_RATE = 0.5;
+    private static final int BASE_FOOD_SHELF_LIFE = 30;
+    private static final java.util.Set<String> ANNUAL_CROPS = java.util.Set.of("wheat_field", "rye_field", "vegetable_garden");
+    private static final java.util.Map<String, Integer> SEED_COSTS = java.util.Map.of(
+        "wheat_field", 10, "rye_field", 12, "vegetable_garden", 8
+    );
     private final Random random = new Random();
 
     @Autowired
@@ -77,6 +82,33 @@ public class HoldfastManager implements HoldfastManagerService {
         status.put("raidChance", round2(calculateRaidChance(h)));
         status.put("targetHappiness", calculateTargetHappiness(h));
         status.put("buildingMenu", buildBuildingMenu(h));
+
+        // Food sustainability metrics
+        double foodPerDay = h.getPopulation() * 0.2;
+        int daysOfFood = foodPerDay > 0 ? (int)(h.getFood() / foodPerDay) : 999;
+        status.put("daysOfFood", Math.min(999, daysOfFood));
+        int foodShelfLife = BASE_FOOD_SHELF_LIFE + h.getBuildingCount("granary") * 15;
+        int nextSpoilIn = -1;
+        if (!h.getFoodBatchDays().isEmpty()) {
+            int oldestAge = h.getDaysElapsed() - h.getFoodBatchDays().get(0);
+            nextSpoilIn = Math.max(0, foodShelfLife - oldestAge);
+        }
+        status.put("nextSpoilIn", nextSpoilIn);
+        status.put("foodShelfLife", foodShelfLife);
+        status.put("foodMarketEnabled", h.isFoodMarketEnabled());
+
+        List<Integer> popHist = h.getPopulationGrowthHistory();
+        int populationChange = 0;
+        double avgDailyGrowth = 0.0;
+        if (popHist.size() >= 2) {
+            populationChange = popHist.get(popHist.size() - 1) - popHist.get(0);
+            double days = (popHist.size() - 1) * 7.0;
+            avgDailyGrowth = Math.round((populationChange / days) * 100.0) / 100.0;
+        }
+        status.put("populationChange", populationChange);
+        status.put("avgDailyGrowth", avgDailyGrowth);
+        status.put("populationHistory", popHist);
+
         return status;
     }
 
@@ -160,6 +192,39 @@ public class HoldfastManager implements HoldfastManagerService {
                 logEvent(events, h, "DAY " + h.getDaysElapsed() + " - " + msg);
             }
 
+            // Food spoilage check
+            int shelfLife = BASE_FOOD_SHELF_LIFE + h.getBuildingCount("granary") * 15;
+            List<Integer> bDays = h.getFoodBatchDays();
+            List<Integer> bAmts = h.getFoodBatchAmounts();
+            int totalSpoiled = 0;
+            for (int i = bDays.size() - 1; i >= 0; i--) {
+                if (h.getDaysElapsed() - bDays.get(i) >= shelfLife) {
+                    totalSpoiled += bAmts.get(i);
+                    bDays.remove(i);
+                    bAmts.remove(i);
+                }
+            }
+            if (totalSpoiled > 0) {
+                h.setFood(Math.max(0, h.getFood() - totalSpoiled));
+                logEvent(events, h, "DAY " + h.getDaysElapsed() + " - " + totalSpoiled + " food has spoiled! (shelf life: " + shelfLife + "d)");
+            }
+
+            // Food market selling
+            if (h.isFoodMarketEnabled() && h.getBuildingCount("food_market") > 0) {
+                int buffer = (int)(h.getPopulation() * 0.2 * 14);
+                int canSell = Math.max(0, h.getFood() - buffer);
+                int toSell = Math.min(canSell, h.getBuildingCount("food_market") * 5);
+                if (toSell > 0) {
+                    h.setFood(h.getFood() - toSell);
+                    double earned = toSell * 0.8;
+                    h.setGold(h.getGold() + earned);
+                    if (h.getDaysElapsed() % 7 == 0) {
+                        logEvent(events, h, "DAY " + h.getDaysElapsed() + " - Food Market sold "
+                            + toSell + " food for " + String.format("%.1f", earned) + "g");
+                    }
+                }
+            }
+
             // Summary every 10 days
             if ((day + 1) % 10 == 0 || day == days - 1) {
                 logEvent(events, h, String.format("Day %d: Net %+.1fg | Total: %.1fg",
@@ -236,6 +301,16 @@ public class HoldfastManager implements HoldfastManagerService {
                 result.put("message", info.get("name") + " requires a Library first");
                 return result;
             }
+            if (requires.equals("mine") && h.getBuildingCount("mine") == 0) {
+                result.put("success", false);
+                result.put("message", info.get("name") + " requires a Mine first");
+                return result;
+            }
+            if (requires.equals("granary") && h.getBuildingCount("granary") == 0) {
+                result.put("success", false);
+                result.put("message", info.get("name") + " requires a Granary first");
+                return result;
+            }
         }
 
         // Check max count
@@ -296,6 +371,9 @@ public class HoldfastManager implements HoldfastManagerService {
             case "vegetable_garden": h.getVegetableGardenPlantDays().add(h.getDaysElapsed()); break;
             case "orchard": h.getOrchardPlantDays().add(h.getDaysElapsed()); break;
             case "vineyard": h.getVineyardPlantDays().add(h.getDaysElapsed()); break;
+            case "rye_field": h.getRyeFieldPlantDays().add(h.getDaysElapsed()); break;
+            case "berry_patch": h.getBerryPatchPlantDays().add(h.getDaysElapsed()); break;
+            case "mushroom_cave": h.getMushroomCavePlantDays().add(h.getDaysElapsed()); break;
         }
 
         db.updateHoldfast(h);
@@ -460,6 +538,9 @@ public class HoldfastManager implements HoldfastManagerService {
                     case "vegetable_garden": if (!h.getVegetableGardenPlantDays().isEmpty()) h.getVegetableGardenPlantDays().remove(h.getVegetableGardenPlantDays().size() - 1); break;
                     case "orchard": if (!h.getOrchardPlantDays().isEmpty()) h.getOrchardPlantDays().remove(h.getOrchardPlantDays().size() - 1); break;
                     case "vineyard": if (!h.getVineyardPlantDays().isEmpty()) h.getVineyardPlantDays().remove(h.getVineyardPlantDays().size() - 1); break;
+                    case "rye_field": if (!h.getRyeFieldPlantDays().isEmpty()) h.getRyeFieldPlantDays().remove(h.getRyeFieldPlantDays().size() - 1); break;
+                    case "berry_patch": if (!h.getBerryPatchPlantDays().isEmpty()) h.getBerryPatchPlantDays().remove(h.getBerryPatchPlantDays().size() - 1); break;
+                    case "mushroom_cave": if (!h.getMushroomCavePlantDays().isEmpty()) h.getMushroomCavePlantDays().remove(h.getMushroomCavePlantDays().size() - 1); break;
                 }
             }
         }
@@ -489,8 +570,8 @@ public class HoldfastManager implements HoldfastManagerService {
             }
         }
         List<Integer> history = h.getPopulationGrowthHistory();
-        history.add(weeklyGrowth);
-        if (history.size() > 8) history.remove(0);
+        history.add(h.getPopulation());
+        if (history.size() > 30) history.remove(0);
 
         return weeklyGrowth > 0 ? "Population grew by " + weeklyGrowth + "! New population: " + h.getPopulation() : null;
     }
@@ -551,16 +632,20 @@ public class HoldfastManager implements HoldfastManagerService {
             events.add("Festival Ground hosted celebration! +80g");
         }
 
-        // Harvests — fields produce food (auto-replant after harvest), orchards give food + gold
+        // Harvests — annuals go fallow after harvest; perennials auto-replant
         events.addAll(checkHarvests(h, "wheat_field", 14, 20, 0, h.getWheatFieldPlantDays()));
+        events.addAll(checkHarvests(h, "rye_field", 28, 40, 0, h.getRyeFieldPlantDays()));
         events.addAll(checkHarvests(h, "vegetable_garden", 10, 10, 0, h.getVegetableGardenPlantDays()));
         events.addAll(checkHarvests(h, "orchard", 30, 8, 40, h.getOrchardPlantDays()));
         events.addAll(checkHarvests(h, "vineyard", 90, 0, 0, h.getVineyardPlantDays()));
+        events.addAll(checkHarvests(h, "berry_patch", 7, 8, 0, h.getBerryPatchPlantDays()));
+        events.addAll(checkHarvests(h, "mushroom_cave", 21, 25, 0, h.getMushroomCavePlantDays()));
 
         return events;
     }
 
-    // harvestFood=0 means no food; harvestGold=0 means no gold bonus; auto-replants after harvest
+    // harvestFood=0 means no food; harvestGold=0 means no gold bonus
+    // Annual crops (ANNUAL_CROPS set) go fallow after harvest — no auto-replant
     private List<String> checkHarvests(Holdfast h, String fieldType, int harvestDays,
                                         int harvestFood, int harvestGold, List<Integer> plantDaysList) {
         List<String> events = new ArrayList<>();
@@ -570,20 +655,29 @@ public class HoldfastManager implements HoldfastManagerService {
                 toHarvest.add(i);
             }
         }
+        int totalFoodThisHarvest = 0;
         List<Integer> replantDays = new ArrayList<>();
         for (int i = toHarvest.size() - 1; i >= 0; i--) {
             int idx = toHarvest.get(i);
             plantDaysList.remove(idx);
-            replantDays.add(h.getDaysElapsed()); // auto-replant
-            if (harvestFood > 0) h.setFood(h.getFood() + harvestFood);
+            if (!ANNUAL_CROPS.contains(fieldType)) {
+                replantDays.add(h.getDaysElapsed()); // perennials auto-replant
+            }
+            if (harvestFood > 0) { h.setFood(h.getFood() + harvestFood); totalFoodThisHarvest += harvestFood; }
             if (harvestGold > 0) h.setGold(h.getGold() + harvestGold);
             StringBuilder msg = new StringBuilder(fieldType.replace("_", " ") + " harvested!");
             if (harvestFood > 0) msg.append(" +").append(harvestFood).append(" food");
             if (harvestGold > 0) msg.append(" +").append(harvestGold).append("g");
+            if (ANNUAL_CROPS.contains(fieldType)) msg.append(" (needs replanting)");
             msg.append(" (Food: ").append(h.getFood()).append(")");
             events.add(msg.toString());
         }
         plantDaysList.addAll(replantDays);
+        // Track food batch for spoilage
+        if (totalFoodThisHarvest > 0) {
+            h.getFoodBatchDays().add(h.getDaysElapsed());
+            h.getFoodBatchAmounts().add(totalFoodThisHarvest);
+        }
         return events;
     }
 
@@ -680,11 +774,62 @@ public class HoldfastManager implements HoldfastManagerService {
             case "aqueduct": return h.getBuildingCount("aqueduct") > 0;
             case "canal_small": return h.getBuildingCount("canal_small") > 0;
             case "library": return h.getBuildingCount("library") > 0;
+            case "mine": return h.getBuildingCount("mine") > 0;
+            case "granary": return h.getBuildingCount("granary") > 0;
             default: return true;
         }
     }
 
     private double round2(double val) {
         return Math.round(val * 100.0) / 100.0;
+    }
+
+    @Override
+    public Map<String, Object> replant(String groupName, String fieldType) {
+        Map<String, Object> result = new HashMap<>();
+        Holdfast h = db.getHoldfast(groupName);
+        if (h == null) { result.put("success", false); result.put("message", "Holdfast not found"); return result; }
+        if (!ANNUAL_CROPS.contains(fieldType)) { result.put("success", false); result.put("message", "That crop replants itself automatically"); return result; }
+        Integer seedCostPerField = SEED_COSTS.get(fieldType);
+        if (seedCostPerField == null) { result.put("success", false); result.put("message", "Unknown crop type"); return result; }
+
+        List<Integer> plantDays = getPlantDaysList(h, fieldType);
+        int falowCount = h.getBuildingCount(fieldType) - (plantDays != null ? plantDays.size() : 0);
+        if (falowCount <= 0) { result.put("success", false); result.put("message", "No fallow " + fieldType.replace("_", " ") + "s to replant"); return result; }
+
+        int totalCost = seedCostPerField * falowCount;
+        if (h.getGold() < totalCost) {
+            result.put("success", false);
+            result.put("message", "Need " + totalCost + "g for seeds (" + falowCount + " fields × " + seedCostPerField + "g), have " + String.format("%.1f", h.getGold()) + "g");
+            return result;
+        }
+
+        h.setGold(h.getGold() - totalCost);
+        for (int i = 0; i < falowCount; i++) {
+            if (plantDays != null) plantDays.add(h.getDaysElapsed());
+        }
+        db.updateHoldfast(h);
+        result.put("success", true);
+        result.put("message", "Planted " + falowCount + " " + fieldType.replace("_", " ") + "(s) for " + totalCost + "g");
+        result.put("holdfast", h);
+        return result;
+    }
+
+    private List<Integer> getPlantDaysList(Holdfast h, String fieldType) {
+        switch (fieldType) {
+            case "wheat_field": return h.getWheatFieldPlantDays();
+            case "rye_field": return h.getRyeFieldPlantDays();
+            case "vegetable_garden": return h.getVegetableGardenPlantDays();
+            default: return null;
+        }
+    }
+
+    @Override
+    public Holdfast toggleFoodMarket(String groupName) {
+        Holdfast h = db.getHoldfast(groupName);
+        if (h == null) return null;
+        h.setFoodMarketEnabled(!h.isFoodMarketEnabled());
+        db.updateHoldfast(h);
+        return h;
     }
 }

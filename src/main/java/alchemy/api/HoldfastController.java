@@ -177,6 +177,36 @@ public class HoldfastController {
         }
     }
 
+    @PostMapping("/replant")
+    public ResponseEntity<?> replant(@RequestBody Map<String, String> payload) {
+        try {
+            String groupName = payload.get("groupName");
+            String fieldType = payload.get("fieldType");
+            if (groupName == null || fieldType == null) {
+                return ResponseEntity.badRequest().body("groupName and fieldType are required");
+            }
+            Map<String, Object> result = holdfastManagerService.replant(groupName, fieldType);
+            boolean success = (boolean) result.get("success");
+            if (!success) return ResponseEntity.badRequest().body(result);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error replanting: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/toggle-food-market")
+    public ResponseEntity<?> toggleFoodMarket(@RequestBody Map<String, String> payload) {
+        try {
+            String groupName = payload.get("groupName");
+            if (groupName == null) return ResponseEntity.badRequest().body("groupName is required");
+            alchemy.object.Holdfast h = holdfastManagerService.toggleFoodMarket(groupName);
+            if (h == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(h);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error toggling food market: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{groupName}")
     public ResponseEntity<?> deleteHoldfast(@PathVariable String groupName) {
         try {

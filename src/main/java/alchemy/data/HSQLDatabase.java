@@ -1136,7 +1136,10 @@ public class HSQLDatabase implements IStubDatabase {
                 "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN food INTEGER DEFAULT 0",
                 "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN wood INTEGER DEFAULT 0",
                 "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN stone INTEGER DEFAULT 0",
-                "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN iron INTEGER DEFAULT 0"
+                "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN iron INTEGER DEFAULT 0",
+                "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN food_batch_days VARCHAR(5000) DEFAULT ''",
+                "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN food_batch_amounts VARCHAR(5000) DEFAULT ''",
+                "ALTER TABLE PUBLIC.HOLDFASTS ADD COLUMN food_market_enabled BOOLEAN DEFAULT FALSE"
             };
             for (String col : newCols) {
                 try { stmt.execute(col); } catch (java.sql.SQLException ignored) { /* column already exists */ }
@@ -1925,7 +1928,7 @@ public void deletePlayer(int playerId) throws SQLException {
 
     @Override
     public void addHoldfast(Holdfast h) {
-        String sql = "INSERT INTO PUBLIC.HOLDFASTS (group_name, holdfast_name, base_gold_per_day, population, castle_type, gold, silver, happiness, target_happiness, days_elapsed, beer, grain, wine, tools, raids_survived, population_growth_history, food, wood, stone, iron) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PUBLIC.HOLDFASTS (group_name, holdfast_name, base_gold_per_day, population, castle_type, gold, silver, happiness, target_happiness, days_elapsed, beer, grain, wine, tools, raids_survived, population_growth_history, food, wood, stone, iron, food_batch_days, food_batch_amounts, food_market_enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, h.getGroupName());
@@ -1948,6 +1951,9 @@ public void deletePlayer(int playerId) throws SQLException {
             ps.setInt(18, h.getWood());
             ps.setInt(19, h.getStone());
             ps.setInt(20, h.getIron());
+            ps.setString(21, joinInts(h.getFoodBatchDays()));
+            ps.setString(22, joinInts(h.getFoodBatchAmounts()));
+            ps.setBoolean(23, h.isFoodMarketEnabled());
             ps.executeUpdate();
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) {
@@ -1981,6 +1987,9 @@ public void deletePlayer(int playerId) throws SQLException {
             insertPlantDaysBatch(ps, h.getId(), "vegetable_garden", h.getVegetableGardenPlantDays());
             insertPlantDaysBatch(ps, h.getId(), "orchard", h.getOrchardPlantDays());
             insertPlantDaysBatch(ps, h.getId(), "vineyard", h.getVineyardPlantDays());
+            insertPlantDaysBatch(ps, h.getId(), "rye_field", h.getRyeFieldPlantDays());
+            insertPlantDaysBatch(ps, h.getId(), "berry_patch", h.getBerryPatchPlantDays());
+            insertPlantDaysBatch(ps, h.getId(), "mushroom_cave", h.getMushroomCavePlantDays());
             ps.executeBatch();
         }
     }
@@ -2036,6 +2045,9 @@ public void deletePlayer(int playerId) throws SQLException {
         h.setWood(rs.getInt("wood"));
         h.setStone(rs.getInt("stone"));
         h.setIron(rs.getInt("iron"));
+        h.setFoodBatchDays(splitInts(rs.getString("food_batch_days")));
+        h.setFoodBatchAmounts(splitInts(rs.getString("food_batch_amounts")));
+        h.setFoodMarketEnabled(rs.getBoolean("food_market_enabled"));
 
         // Load buildings
         String bSql = "SELECT building_type, count FROM PUBLIC.HOLDFAST_BUILDINGS WHERE holdfast_id = ?";
@@ -2061,6 +2073,9 @@ public void deletePlayer(int playerId) throws SQLException {
                         case "vegetable_garden": h.getVegetableGardenPlantDays().add(plantDay); break;
                         case "orchard": h.getOrchardPlantDays().add(plantDay); break;
                         case "vineyard": h.getVineyardPlantDays().add(plantDay); break;
+                        case "rye_field": h.getRyeFieldPlantDays().add(plantDay); break;
+                        case "berry_patch": h.getBerryPatchPlantDays().add(plantDay); break;
+                        case "mushroom_cave": h.getMushroomCavePlantDays().add(plantDay); break;
                     }
                 }
             }
@@ -2088,7 +2103,7 @@ public void deletePlayer(int playerId) throws SQLException {
 
     @Override
     public void updateHoldfast(Holdfast h) {
-        String sql = "UPDATE PUBLIC.HOLDFASTS SET holdfast_name=?, base_gold_per_day=?, population=?, castle_type=?, gold=?, silver=?, happiness=?, target_happiness=?, days_elapsed=?, beer=?, grain=?, wine=?, tools=?, raids_survived=?, population_growth_history=?, food=?, wood=?, stone=?, iron=? WHERE group_name=?";
+        String sql = "UPDATE PUBLIC.HOLDFASTS SET holdfast_name=?, base_gold_per_day=?, population=?, castle_type=?, gold=?, silver=?, happiness=?, target_happiness=?, days_elapsed=?, beer=?, grain=?, wine=?, tools=?, raids_survived=?, population_growth_history=?, food=?, wood=?, stone=?, iron=?, food_batch_days=?, food_batch_amounts=?, food_market_enabled=? WHERE group_name=?";
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, h.getHoldfastName());
@@ -2110,7 +2125,10 @@ public void deletePlayer(int playerId) throws SQLException {
             ps.setInt(17, h.getWood());
             ps.setInt(18, h.getStone());
             ps.setInt(19, h.getIron());
-            ps.setString(20, h.getGroupName());
+            ps.setString(20, joinInts(h.getFoodBatchDays()));
+            ps.setString(21, joinInts(h.getFoodBatchAmounts()));
+            ps.setBoolean(22, h.isFoodMarketEnabled());
+            ps.setString(23, h.getGroupName());
             ps.executeUpdate();
 
             // Delete and re-insert buildings and plant days

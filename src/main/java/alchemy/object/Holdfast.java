@@ -29,6 +29,12 @@ public class Holdfast {
     private List<Integer> orchardPlantDays = new ArrayList<>();
     private List<Integer> vineyardPlantDays = new ArrayList<>();
     private List<Integer> populationGrowthHistory = new ArrayList<>();
+    private List<Integer> ryeFieldPlantDays = new ArrayList<>();
+    private List<Integer> berryPatchPlantDays = new ArrayList<>();
+    private List<Integer> mushroomCavePlantDays = new ArrayList<>();
+    private List<Integer> foodBatchDays = new ArrayList<>();
+    private List<Integer> foodBatchAmounts = new ArrayList<>();
+    private boolean foodMarketEnabled = false;
 
     public Holdfast() {
         buildings = new HashMap<>();
@@ -120,6 +126,24 @@ public class Holdfast {
 
     public List<Integer> getPopulationGrowthHistory() { return populationGrowthHistory; }
     public void setPopulationGrowthHistory(List<Integer> history) { this.populationGrowthHistory = history; }
+
+    public List<Integer> getRyeFieldPlantDays() { return ryeFieldPlantDays; }
+    public void setRyeFieldPlantDays(List<Integer> days) { this.ryeFieldPlantDays = days; }
+
+    public List<Integer> getBerryPatchPlantDays() { return berryPatchPlantDays; }
+    public void setBerryPatchPlantDays(List<Integer> days) { this.berryPatchPlantDays = days; }
+
+    public List<Integer> getMushroomCavePlantDays() { return mushroomCavePlantDays; }
+    public void setMushroomCavePlantDays(List<Integer> days) { this.mushroomCavePlantDays = days; }
+
+    public List<Integer> getFoodBatchDays() { return foodBatchDays; }
+    public void setFoodBatchDays(List<Integer> days) { this.foodBatchDays = days; }
+
+    public List<Integer> getFoodBatchAmounts() { return foodBatchAmounts; }
+    public void setFoodBatchAmounts(List<Integer> amounts) { this.foodBatchAmounts = amounts; }
+
+    public boolean isFoodMarketEnabled() { return foodMarketEnabled; }
+    public void setFoodMarketEnabled(boolean foodMarketEnabled) { this.foodMarketEnabled = foodMarketEnabled; }
 
     public int getBuildingCount(String type) {
         return buildings.getOrDefault(type, 0);
