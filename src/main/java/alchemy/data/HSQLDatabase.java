@@ -27,6 +27,7 @@ import alchemy.object.IPotion;
 import alchemy.object.Ingredient;
 import alchemy.object.Player;
 import alchemy.object.Potion;
+import alchemy.config.DatabaseUrlResolver;
 
 @Repository
 public class HSQLDatabase implements IStubDatabase {
@@ -40,8 +41,8 @@ public class HSQLDatabase implements IStubDatabase {
             Class.forName("org.hsqldb.jdbc.JDBCDriver"); // Ensure the driver is loaded
 
             HikariConfig config = new HikariConfig();
-            // Use server mode - expects HSQLDB server running on port 9002
-            config.setJdbcUrl("jdbc:hsqldb:hsql://localhost:9002/mydb");
+            // Use server mode - expects an HSQLDB server running per DATABASE_URL
+            config.setJdbcUrl(DatabaseUrlResolver.resolve());
 
             config.setUsername("SA");
             config.setMaximumPoolSize(12); // Up to 12 simultaneous connections

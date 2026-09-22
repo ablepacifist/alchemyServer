@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { BRIDGE_URL } from '../config';
 
 // Bridge always runs via Cloudflare tunnel
-const BRIDGE_BASE_URL = 'https://voice.alex-dyakin.com';
+const BRIDGE_BASE_URL = BRIDGE_URL;
 const DEFAULT_AVATAR = `${BRIDGE_BASE_URL}/uploads/avatars/default.jpg`;
 
 /**

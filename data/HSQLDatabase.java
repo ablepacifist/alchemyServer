@@ -1,3 +1,6 @@
+// LEGACY / UNUSED — pre-Gradle prototype, superseded by
+// src/main/java/alchemy/data/HSQLDatabase.java. Not part of the Gradle build
+// and not referenced by anything that compiles. Kept for reference only.
 package data;
 
 import java.io.File;

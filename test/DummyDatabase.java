@@ -1,3 +1,8 @@
+// LEGACY / UNUSED — pre-Gradle test fixture, part of the same orphaned tree
+// as the root Main.java/data/*.java. Not part of the Gradle build; the
+// Makefile's `test` target references this test/ directory but it does not
+// currently compile (depends on the root data.*/logic.*/object.* packages,
+// which are incomplete). Kept for reference only.
 package test;
 
 import java.sql.SQLException;

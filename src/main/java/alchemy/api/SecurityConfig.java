@@ -36,8 +36,17 @@ public class SecurityConfig {
     @Autowired
     private PlayerDetailsService playerDetailsService;
 
-    @Value("${cors.allowed-origins}")
+    @Value("${cors.allowed-origins:}")
     private String allowedOrigins;
+
+    @Value("${cors.allowed-origin-patterns:}")
+    private String allowedOriginPatterns;
+
+    @Value("${lan.host:}")
+    private String lanHost;
+
+    @Value("${playit.host:}")
+    private String playitHost;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -75,27 +84,20 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        
-        // Parse origins from application.properties
-        List<String> configuredOrigins = Arrays.asList(allowedOrigins.split(","));
-        
-        // Separate exact origins from wildcard patterns
-        List<String> exactOrigins = new ArrayList<>();
-        List<String> originPatterns = new ArrayList<>();
-        
-        for (String origin : configuredOrigins) {
-            String trimmed = origin.trim();
-            if (trimmed.contains("*")) {
-                originPatterns.add(trimmed);
-            } else {
-                exactOrigins.add(trimmed);
-            }
+
+        // Exact origins come from CORS_ALLOWED_ORIGINS, wildcard patterns from
+        // CORS_ALLOWED_ORIGIN_PATTERNS (both layered via application.properties).
+        List<String> exactOrigins = new ArrayList<>(splitNonBlank(allowedOrigins));
+        List<String> originPatterns = new ArrayList<>(splitNonBlank(allowedOriginPatterns));
+
+        // Automatically trust the LAN and PlayIt tunnel hosts, when configured.
+        if (lanHost != null && !lanHost.isBlank()) {
+            originPatterns.add("http://" + lanHost.trim() + ":*");
         }
-        
-        // Add Cloudflare tunnel domains
-        originPatterns.add("https://alex-dyakin.com");
-        originPatterns.add("https://*.alex-dyakin.com");
-        
+        if (playitHost != null && !playitHost.isBlank()) {
+            originPatterns.add("http://" + playitHost.trim() + ":*");
+        }
+
         System.out.println("=== Alchemy CORS Configuration ===");
         System.out.println("Exact origins: " + exactOrigins);
         System.out.println("Origin patterns: " + originPatterns);
@@ -114,5 +116,19 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
+    }
+
+    private static List<String> splitNonBlank(String csv) {
+        List<String> result = new ArrayList<>();
+        if (csv == null || csv.isBlank()) {
+            return result;
+        }
+        for (String part : csv.split(",")) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+        return result;
     }
 }

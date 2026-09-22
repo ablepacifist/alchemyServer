@@ -95,11 +95,11 @@ AlchemyServer/
 ```
 
 ## How the System Works
-- **HSQLDB Server (Port 9001):**  
-  The HSQLDB database runs on port **9001** and stores all game data (players, ingredients, potions, etc.). You can start it via Makefile or manually.
+- **HSQLDB Server (Port 9002):**  
+  The HSQLDB database runs on the port given by `DATABASE_URL` (default port **9002**) and stores all game data (players, ingredients, potions, etc.). You can start it via Makefile or manually.
   
 - **Spring Boot API (Port 8080):**  
-  The back-end API is built with Spring Boot and listens on port **8080**. It handles player authentication, inventory management, and potion brewing. The API communicates with HSQLDB on port 9001 by reading/writing game data.
+  The back-end API is built with Spring Boot and listens on the port given by `ALCHEMY_PORT` (default **8080**). It handles player authentication, inventory management, and potion brewing. The API communicates with HSQLDB (default port 9002, from `DATABASE_URL`) by reading/writing game data.
   
 - **React Front-end (Port 3000):**  
   The React application (in the `alchemy-ui` folder) provides the user interface. During development, it runs as a separate server on port **3000**. It communicates with the back-end API on port 8080 via HTTP (using CORS).
@@ -113,7 +113,7 @@ You can start the HSQLDB server using either the provided Makefile target or man
   ```bash
   make start-server
   ```
-  This will start the HSQLDB server on port 9001 using the database file defined by the relative path `alchemydb`.
+  This will start the HSQLDB server on port 9002 (see `DATABASE_URL`) using the database file defined by the relative path `alchemydb`.
 
 - **Manually:**  
   If you prefer, run:
@@ -126,7 +126,7 @@ Use Gradle to start the back-end API:
 ```bash
 ./gradlew bootRun
 ```
-This command launches the Spring Boot application, which will listen on port 8080. The application uses the HSQLDB server (running on port 9001) for persistence.
+This command launches the Spring Boot application, which will listen on port 8080 by default (`ALCHEMY_PORT`). The application uses the HSQLDB server (default port 9002, from `DATABASE_URL`) for persistence.
 
 ### 3. Start the React Front-end
 Navigate to the React project folder (`alchemy-ui`) and start the development server:
@@ -202,7 +202,7 @@ java -cp lib/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing
 ### Connecting to the Database
 When the GUI opens:
 1. **Driver:** HSQL Database Engine Server
-2. **URL:** `jdbc:hsqldb:hsql://localhost:9001/mydb`
+2. **URL:** `jdbc:hsqldb:hsql://localhost:9002/mydb` (see `DATABASE_URL`)
 3. **User:** `SA`
 4. **Password:** (Leave blank)
 5. Click **Connect**
@@ -225,8 +225,8 @@ SHUTDOWN;
 
 ## Summary of Ports and Communication
 
-- **Port 9001 (HSQLDB):**  
-  The HSQLDB server stores game data. The Spring Boot API connects to this server to read and write data.
+- **Port 9002 (HSQLDB):**  
+  The HSQLDB server stores game data, on the port given by `DATABASE_URL` (default 9002). The Spring Boot API connects to this server to read and write data.
 - **Port 8080 (Spring Boot API):**  
   The back-end API handles player logins, game logic, and database interactions.
 - **Port 3000 (React Front-end):**  

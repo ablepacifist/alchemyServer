@@ -1,3 +1,5 @@
+// LEGACY / UNUSED — see test/DummyDatabase.java for why this whole test/
+// tree is orphaned. Not part of the Gradle build. Kept for reference only.
 package test.integration;
 
 import static org.junit.Assert.*;

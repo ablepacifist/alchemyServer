@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import background from '../assets/images/background.jpg';
+import { API_URL } from '../config';
 // register component acts much the same way as the lognin component
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -15,8 +16,7 @@ const Register = () => {
     // No client-side validation checks—everything is sent to the API for validation.
     try {
       // send the JSON package to the server
-      // can replace the fetch call with '${API_URL}/api/auth/register' ?
-      const response = await fetch("http://96.37.95.22:8080/api/auth/register", {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         credentials: 'include',
         method: "POST",
         headers: { "Content-Type": "application/json" },

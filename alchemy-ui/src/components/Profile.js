@@ -3,6 +3,7 @@ import { UserContext } from '../context/UserContext';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAvatar } from '../hooks/useAvatar';
 import background from '../assets/images/dashboard_background.jpg';
+import { API_URL } from '../config';
 
 const Profile = () => {
   // 1. Hooks always run in the same order
@@ -27,7 +28,7 @@ const Profile = () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `http://96.37.95.22:8080/api/player/${user.id}`,
+        `${API_URL}/api/player/${user.id}`,
         { credentials: 'include' }
       );
       if (!res.ok) {
@@ -55,7 +56,7 @@ const Profile = () => {
 
     try {
       const res = await fetch(
-        `http://96.37.95.22:8080/api/player/levelup`,
+        `${API_URL}/api/player/levelup`,
         {
           method: 'POST',
           credentials: 'include',
@@ -78,7 +79,7 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://96.37.95.22:8080/api/auth/logout', {
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
