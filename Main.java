@@ -1,3 +1,8 @@
+// LEGACY / UNUSED — pre-Gradle prototype, superseded by src/main/java/alchemy/*.
+// Not part of the Gradle build (see build.gradle's sourceSets) and does not
+// compile on its own: it imports logic.* and object.* packages that don't
+// exist anywhere in this repo at the root level. Kept for reference only —
+// do not build or run this file.
 import java.sql.SQLException;
 import java.io.IOException;
 import data.HSQLDatabase;

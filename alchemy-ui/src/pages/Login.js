@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import background from '../assets/images/background.jpg';
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from '../config';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -15,7 +15,7 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, { // <-- Use API_URL from .env
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         credentials: 'include', // <-- Include cookies
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -10,8 +10,7 @@ import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import Profile from './components/Profile';
 import KnowledgeBook from './pages/KnowledgeBook';
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from './config';
 
 function PrivateRoute({ children }) {
   const { user } = useContext(UserContext);
