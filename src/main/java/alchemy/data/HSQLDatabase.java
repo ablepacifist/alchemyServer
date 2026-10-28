@@ -45,6 +45,7 @@ public class HSQLDatabase implements IStubDatabase {
             config.setJdbcUrl(DatabaseUrlResolver.resolve());
 
             config.setUsername("SA");
+            config.setPassword(DatabaseUrlResolver.password());
             config.setMaximumPoolSize(12); // Up to 12 simultaneous connections
             config.setInitializationFailTimeout(0);
             config.setConnectionTimeout(15000);
@@ -888,8 +889,19 @@ public class HSQLDatabase implements IStubDatabase {
                 // stmt.execute("CHECKPOINT");
 
                 // Insert player "alex" into PLAYERS — level defaults to 1.
-                int rowsAffected = stmt.executeUpdate(
-                        "INSERT INTO PUBLIC.PLAYERS (USERNAME, PASSWORD) VALUES ('alex', 'zx7364pl')");
+                // The password comes from ALCHEMY_SEED_PASSWORD (never hardcoded). If it is unset a random
+                // one is generated, so the account exists but nobody can log in until it is set.
+                String seedPassword = System.getenv("ALCHEMY_SEED_PASSWORD");
+                if (seedPassword == null || seedPassword.isBlank()) {
+                    seedPassword = java.util.UUID.randomUUID().toString();
+                }
+                int rowsAffected;
+                try (PreparedStatement seedStmt = conn.prepareStatement(
+                        "INSERT INTO PUBLIC.PLAYERS (USERNAME, PASSWORD) VALUES ('alex', ?)")) {
+                    seedStmt.setString(1,
+                            new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode(seedPassword));
+                    rowsAffected = seedStmt.executeUpdate();
+                }
                 System.out.println("Inserted 'alex', rows affected: " + rowsAffected);
 
                 // Retrieve the generated player ID for "alex".
@@ -1291,6 +1303,20 @@ public class HSQLDatabase implements IStubDatabase {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error updating level for player ID: " + playerId);
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updatePlayerPassword(int playerId, String hashedPassword) {
+        String sql = "UPDATE PUBLIC.PLAYERS SET password = ? WHERE id = ?";
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, hashedPassword);
+            pstmt.setInt(2, playerId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error updating password for player ID: " + playerId);
             e.printStackTrace();
         }
     }

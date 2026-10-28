@@ -54,6 +54,8 @@ public interface IStubDatabase {
     void addPotion(Potion potion);
 
     void updatePlayerLevel(int id, int level);
+    /** Replaces the stored password value (used to upgrade legacy plaintext rows to a BCrypt hash). */
+    void updatePlayerPassword(int playerId, String hashedPassword);
     //void resetDatabase() throws SQLException;
     void deletePlayer(int playerId) throws SQLException;
 

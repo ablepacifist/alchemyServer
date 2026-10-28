@@ -111,6 +111,17 @@ public class DummyDatabase implements IStubDatabase {
         }
     }
     
+    @Override
+    public void updatePlayerPassword(int playerId, String hashedPassword) {
+        Player old = playersById.get(playerId);
+        if (old != null) {
+            Player updated = new Player(old.getId(), old.getUsername(), hashedPassword,
+                    old.getInventory(), old.getKnowledgeBook(), old.getLevel());
+            playersById.put(playerId, updated);
+            playersByUsername.put(updated.getUsername(), updated);
+        }
+    }
+
     // Additional helper methods for testing:
     public void addEffect(IEffect effect) {
         effects.put(effect.getId(), effect);
