@@ -7,7 +7,7 @@
 //
 // Same selection rule as Lexicon's src/utils/apiUrls.js: local access (by
 // hostname sniff) uses the LAN address, alex-dyakin.com uses the public
-// Cloudflare URL, and anything else falls back to the PlayIt tunnel. This
+// Cloudflare URL, and any other host also uses the public HTTPS URL. This
 // app has no native (Capacitor) shell, so there is no native branch.
 
 import destinations from './config/destinations.json';
@@ -17,8 +17,6 @@ const {
     ALCHEMY_PORT,
     PUBLIC_ALCHEMY_URL,
     PUBLIC_BRIDGE_URL,
-    PLAYIT_HOST,
-    PLAYIT_ALCHEMY_PORT,
 } = destinations;
 
 function resolveApiUrl() {
@@ -31,18 +29,15 @@ function resolveApiUrl() {
         hostname.startsWith('10.') ||
         hostname.startsWith('172.')
     );
-    const isCloudflareAccess = hostname.endsWith('alex-dyakin.com');
 
     if (isLocalAccess) {
         return `http://${LAN_HOST}:${ALCHEMY_PORT}`;
     }
-    if (isCloudflareAccess) {
-        return PUBLIC_ALCHEMY_URL;
-    }
-    return `http://${PLAYIT_HOST}:${PLAYIT_ALCHEMY_PORT}`;
+    // alex-dyakin.com or any other host: the public HTTPS URL.
+    return PUBLIC_ALCHEMY_URL;
 }
 
 export const API_URL = resolveApiUrl();
 
-// Bridge always uses the Cloudflare tunnel (not hosted locally or via PlayIt).
+// Bridge always uses the Cloudflare tunnel (not hosted locally).
 export const BRIDGE_URL = PUBLIC_BRIDGE_URL;
