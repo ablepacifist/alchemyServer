@@ -36,10 +36,6 @@ public class PlayerManager implements PlayerManagerService {
     @Override
     public Player loginPlayer(String username, String rawPassword) {
         Player player = db.getPlayerByUsername(username);
-                System.out.println("Login input password: " + rawPassword);
-System.out.println("Stored player password: " + player.getPassword());
-System.out.println("Password match? " + passwordEncoder.matches(rawPassword, player.getPassword()));
-
         if (player == null) {
             throw new IllegalArgumentException("Invalid username. No such player exists.");
         }
@@ -50,6 +46,11 @@ System.out.println("Password match? " + passwordEncoder.matches(rawPassword, pla
         }
 
         return player;
+    }
+
+    @Override
+    public void updatePlayerPassword(int playerId, String hashedPassword) {
+        db.updatePlayerPassword(playerId, hashedPassword);
     }
 
     @Override

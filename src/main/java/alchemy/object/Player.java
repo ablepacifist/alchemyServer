@@ -1,4 +1,5 @@
 package alchemy.object;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -43,6 +44,8 @@ public class Player implements Serializable {
     }
 
 
+    /** Never serialized: the stored (hashed or legacy) password must not leave the server in any API response. */
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

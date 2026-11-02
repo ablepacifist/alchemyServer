@@ -27,6 +27,12 @@ public class DatabaseUrlEnvironmentPostProcessor implements EnvironmentPostProce
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
+        if (System.getProperty("DATABASE_PASSWORD") == null) {
+            String password = environment.getProperty("DATABASE_PASSWORD");
+            if (password != null) {
+                System.setProperty("DATABASE_PASSWORD", password);
+            }
+        }
         // An explicit -DDATABASE_URL=... already wins in DatabaseUrlResolver; don't overwrite it.
         if (System.getProperty("DATABASE_URL") != null) {
             return;

@@ -35,6 +35,20 @@ public final class DatabaseUrlResolver {
         return DEFAULT_DATABASE_URL;
     }
 
+    /**
+     * Password for the HSQLDB "SA" user: system property DATABASE_PASSWORD (populated from the
+     * layered .env by {@link DatabaseUrlEnvironmentPostProcessor}), then the environment variable.
+     * Empty when unset, which matches an HSQLDB server that has no password configured yet.
+     */
+    public static String password() {
+        String value = System.getProperty("DATABASE_PASSWORD");
+        if (value != null) {
+            return value;
+        }
+        value = System.getenv("DATABASE_PASSWORD");
+        return value != null ? value : "";
+    }
+
     private static boolean isSet(String value) {
         return value != null && !value.isBlank();
     }

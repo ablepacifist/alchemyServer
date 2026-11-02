@@ -31,6 +31,9 @@ public interface PlayerManagerService {
      */
     Player loginPlayer(String username, String password);
 
+    /** Stores an already-hashed password for the given player (legacy plaintext upgrade). */
+    void updatePlayerPassword(int playerId, String hashedPassword);
+
     /**
      * Registers a new player after checking the password confirmation.
      *
