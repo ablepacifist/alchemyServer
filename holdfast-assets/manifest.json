@@ -1,0 +1,316 @@
+{
+  "_readme": "Holdfast asset manifest. To add an image: put the file in the matching folder (buildings/, resources/, castles/, crops/, tabs/, ui/) and set that key's \"file\" to its path relative to this folder, e.g. \"buildings/granary.png\". PNG, WebP, JPG, GIF or SVG. Keep \"emoji\": it is shown whenever \"file\" is null or the image fails to load. Changes are picked up without a restart.",
+  "version": 1,
+  "assets": {
+    "building.alchemy_garden": {
+      "label": "Alchemy Garden",
+      "emoji": "⚗️",
+      "file": null
+    },
+    "building.mine": {
+      "label": "Mine",
+      "emoji": "⛏️",
+      "file": null
+    },
+    "building.logging_camp": {
+      "label": "Logging Camp",
+      "emoji": "🪓",
+      "file": null
+    },
+    "building.tavern": {
+      "label": "Tavern",
+      "emoji": "🍺",
+      "file": null
+    },
+    "building.guard_tower": {
+      "label": "Guard Tower",
+      "emoji": "🗼",
+      "file": null
+    },
+    "building.granary": {
+      "label": "Granary",
+      "emoji": "🌾",
+      "file": null
+    },
+    "building.wheat_field": {
+      "label": "Wheat Field",
+      "emoji": "🌾",
+      "file": null
+    },
+    "building.rye_field": {
+      "label": "Rye Field",
+      "emoji": "🌾",
+      "file": null
+    },
+    "building.berry_patch": {
+      "label": "Berry Patch",
+      "emoji": "🫐",
+      "file": null
+    },
+    "building.vegetable_garden": {
+      "label": "Vegetable Garden",
+      "emoji": "🥕",
+      "file": null
+    },
+    "building.orchard": {
+      "label": "Orchard",
+      "emoji": "🍎",
+      "file": null
+    },
+    "building.vineyard": {
+      "label": "Vineyard",
+      "emoji": "🍇",
+      "file": null
+    },
+    "building.blacksmith": {
+      "label": "Blacksmith",
+      "emoji": "⚒️",
+      "file": null
+    },
+    "building.carpenter": {
+      "label": "Carpenter Shop",
+      "emoji": "🪚",
+      "file": null
+    },
+    "building.mushroom_cave": {
+      "label": "Mushroom Cave",
+      "emoji": "🍄",
+      "file": null
+    },
+    "building.chapel": {
+      "label": "Chapel",
+      "emoji": "⛪",
+      "file": null
+    },
+    "building.market": {
+      "label": "Market",
+      "emoji": "🏪",
+      "file": null
+    },
+    "building.food_market": {
+      "label": "Food Market",
+      "emoji": "🧺",
+      "file": null
+    },
+    "building.festival_ground": {
+      "label": "Festival Ground",
+      "emoji": "🎪",
+      "file": null
+    },
+    "building.library": {
+      "label": "Library",
+      "emoji": "📚",
+      "file": null
+    },
+    "building.hospital": {
+      "label": "Hospital",
+      "emoji": "🏥",
+      "file": null
+    },
+    "building.lighthouse": {
+      "label": "Lighthouse",
+      "emoji": "🗼",
+      "file": null
+    },
+    "building.stone_walls": {
+      "label": "Stone Walls",
+      "emoji": "🧱",
+      "file": null
+    },
+    "building.castle_keep": {
+      "label": "Castle Keep",
+      "emoji": "🏯",
+      "file": null
+    },
+    "building.church": {
+      "label": "Church",
+      "emoji": "⛪",
+      "file": null
+    },
+    "building.grand_theater": {
+      "label": "Grand Theater",
+      "emoji": "🎭",
+      "file": null
+    },
+    "building.university": {
+      "label": "University",
+      "emoji": "🎓",
+      "file": null
+    },
+    "building.mint": {
+      "label": "Mint",
+      "emoji": "🪙",
+      "file": null
+    },
+    "building.aqueduct": {
+      "label": "Aqueduct",
+      "emoji": "🌉",
+      "file": null
+    },
+    "building.canal_small": {
+      "label": "Small Canal",
+      "emoji": "🛶",
+      "file": null
+    },
+    "building.canal_major": {
+      "label": "Major Canal",
+      "emoji": "⛵",
+      "file": null
+    },
+    "building.harbor": {
+      "label": "Harbor",
+      "emoji": "⚓",
+      "file": null
+    },
+    "building.palace": {
+      "label": "Palace",
+      "emoji": "👑",
+      "file": null
+    },
+    "building.colosseum": {
+      "label": "Colosseum",
+      "emoji": "🏟️",
+      "file": null
+    },
+    "building.museum": {
+      "label": "Museum",
+      "emoji": "🏛️",
+      "file": null
+    },
+    "resource.gold": {
+      "label": "Gold",
+      "emoji": "💰",
+      "file": null
+    },
+    "resource.food": {
+      "label": "Food",
+      "emoji": "🍞",
+      "file": null
+    },
+    "resource.wood": {
+      "label": "Wood",
+      "emoji": "🪵",
+      "file": null
+    },
+    "resource.stone": {
+      "label": "Stone",
+      "emoji": "🪨",
+      "file": null
+    },
+    "resource.iron": {
+      "label": "Iron",
+      "emoji": "⚙️",
+      "file": null
+    },
+    "resource.beer": {
+      "label": "Beer",
+      "emoji": "🍺",
+      "file": null
+    },
+    "resource.wine": {
+      "label": "Wine",
+      "emoji": "🍷",
+      "file": null
+    },
+    "resource.tools": {
+      "label": "Tools",
+      "emoji": "🔧",
+      "file": null
+    },
+    "resource.grain": {
+      "label": "Grain",
+      "emoji": "🌾",
+      "file": null
+    },
+    "resource.silver": {
+      "label": "Silver",
+      "emoji": "🪙",
+      "file": null
+    },
+    "resource.population": {
+      "label": "Population",
+      "emoji": "👥",
+      "file": null
+    },
+    "resource.happiness": {
+      "label": "Happiness",
+      "emoji": "😊",
+      "file": null
+    },
+    "resource.protection": {
+      "label": "Protection",
+      "emoji": "🛡️",
+      "file": null
+    },
+    "resource.day": {
+      "label": "Day",
+      "emoji": "📅",
+      "file": null
+    },
+    "castle.wood_fort": {
+      "label": "Wooden Fort",
+      "emoji": "🏰",
+      "file": null
+    },
+    "castle.stone_fort": {
+      "label": "Stone Fort",
+      "emoji": "🏰",
+      "file": null
+    },
+    "castle.stone_castle": {
+      "label": "Stone Castle",
+      "emoji": "🏯",
+      "file": null
+    },
+    "tab.status": {
+      "label": "Status",
+      "emoji": "📊",
+      "file": null
+    },
+    "tab.time": {
+      "label": "Time",
+      "emoji": "⏰",
+      "file": null
+    },
+    "tab.build": {
+      "label": "Build",
+      "emoji": "🏗️",
+      "file": null
+    },
+    "tab.treasury": {
+      "label": "Treasury",
+      "emoji": "💰",
+      "file": null
+    },
+    "tab.log": {
+      "label": "Log",
+      "emoji": "📜",
+      "file": null
+    },
+    "tab.help": {
+      "label": "Help",
+      "emoji": "📖",
+      "file": null
+    },
+    "ui.banner": {
+      "label": "Holdfast banner",
+      "emoji": "🏰",
+      "file": null
+    },
+    "ui.empty": {
+      "label": "No holdfast selected",
+      "emoji": "🏰",
+      "file": null
+    },
+    "ui.raid": {
+      "label": "Raid",
+      "emoji": "⚔️",
+      "file": null
+    },
+    "ui.lock": {
+      "label": "Admin only",
+      "emoji": "🔒",
+      "file": null
+    }
+  }
+}
