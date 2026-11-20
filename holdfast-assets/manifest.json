@@ -10,52 +10,52 @@
     "building.mine": {
       "label": "Mine",
       "emoji": "⛏️",
-      "file": null
+      "file": "buildings/mine.png"
     },
     "building.logging_camp": {
       "label": "Logging Camp",
       "emoji": "🪓",
-      "file": null
+      "file": "buildings/logging_camp.png"
     },
     "building.tavern": {
       "label": "Tavern",
       "emoji": "🍺",
-      "file": null
+      "file": "buildings/tavern.png"
     },
     "building.guard_tower": {
       "label": "Guard Tower",
       "emoji": "🗼",
-      "file": null
+      "file": "buildings/guard_tower.png"
     },
     "building.granary": {
       "label": "Granary",
       "emoji": "🌾",
-      "file": null
+      "file": "buildings/granary.png"
     },
     "building.wheat_field": {
       "label": "Wheat Field",
       "emoji": "🌾",
-      "file": null
+      "file": "crops/wheat_field.png"
     },
     "building.rye_field": {
       "label": "Rye Field",
       "emoji": "🌾",
-      "file": null
+      "file": "crops/rye_field.png"
     },
     "building.berry_patch": {
       "label": "Berry Patch",
       "emoji": "🫐",
-      "file": null
+      "file": "crops/berry_patch.png"
     },
     "building.vegetable_garden": {
       "label": "Vegetable Garden",
       "emoji": "🥕",
-      "file": null
+      "file": "crops/vegetable_garden.png"
     },
     "building.orchard": {
       "label": "Orchard",
       "emoji": "🍎",
-      "file": null
+      "file": "crops/orchard.png"
     },
     "building.vineyard": {
       "label": "Vineyard",
@@ -65,12 +65,12 @@
     "building.blacksmith": {
       "label": "Blacksmith",
       "emoji": "⚒️",
-      "file": null
+      "file": "buildings/blacksmith.png"
     },
     "building.carpenter": {
       "label": "Carpenter Shop",
       "emoji": "🪚",
-      "file": null
+      "file": "buildings/carpenter.png"
     },
     "building.mushroom_cave": {
       "label": "Mushroom Cave",
@@ -80,22 +80,22 @@
     "building.chapel": {
       "label": "Chapel",
       "emoji": "⛪",
-      "file": null
+      "file": "buildings/chapel.png"
     },
     "building.market": {
       "label": "Market",
       "emoji": "🏪",
-      "file": null
+      "file": "buildings/market.png"
     },
     "building.food_market": {
       "label": "Food Market",
       "emoji": "🧺",
-      "file": null
+      "file": "buildings/food_market.png"
     },
     "building.festival_ground": {
       "label": "Festival Ground",
       "emoji": "🎪",
-      "file": null
+      "file": "buildings/festival_ground.png"
     },
     "building.library": {
       "label": "Library",
@@ -115,7 +115,7 @@
     "building.stone_walls": {
       "label": "Stone Walls",
       "emoji": "🧱",
-      "file": null
+      "file": "buildings/stone_walls.png"
     },
     "building.castle_keep": {
       "label": "Castle Keep",
@@ -180,7 +180,7 @@
     "resource.gold": {
       "label": "Gold",
       "emoji": "💰",
-      "file": null
+      "file": "resources/gold.png"
     },
     "resource.food": {
       "label": "Food",
@@ -190,17 +190,17 @@
     "resource.wood": {
       "label": "Wood",
       "emoji": "🪵",
-      "file": null
+      "file": "resources/wood.png"
     },
     "resource.stone": {
       "label": "Stone",
       "emoji": "🪨",
-      "file": null
+      "file": "resources/stone.png"
     },
     "resource.iron": {
       "label": "Iron",
       "emoji": "⚙️",
-      "file": null
+      "file": "resources/iron.png"
     },
     "resource.beer": {
       "label": "Beer",
@@ -225,7 +225,7 @@
     "resource.silver": {
       "label": "Silver",
       "emoji": "🪙",
-      "file": null
+      "file": "resources/silver.png"
     },
     "resource.population": {
       "label": "Population",
@@ -260,7 +260,7 @@
     "castle.stone_castle": {
       "label": "Stone Castle",
       "emoji": "🏯",
-      "file": null
+      "file": "castles/stone_castle.png"
     },
     "tab.status": {
       "label": "Status",
