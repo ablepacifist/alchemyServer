@@ -1,5 +1,7 @@
 package alchemy.api;
 
+import alchemy.logic.CallerIdentityService;
+
 import alchemy.object.Player;
 import alchemy.logic.PlayerManagerService;
 
@@ -33,6 +35,10 @@ public class PlayerController {
 
     @Autowired
     private PlayerManagerService playerManagerService;
+
+    /** Proves the caller is the player named; see CallerIdentityService. */
+    @Autowired
+    private CallerIdentityService callerIdentity;
     @GetMapping("/{id}")
     public ResponseEntity<?> getPlayerById(@PathVariable int id) {
         try {
@@ -79,8 +85,10 @@ public class PlayerController {
     //Endpoint for Inventory Retrieval
     // -----------------------------------------------
  @GetMapping("/inventory/{playerId}")
-public ResponseEntity<?> getInventory(@PathVariable int playerId) {
+public ResponseEntity<?> getInventory(@PathVariable int playerId, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
     try {
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
         IInventory inventory = playerManagerService.getInventory(playerId);
         if (inventory == null) {
             return ResponseEntity.notFound().build();
@@ -157,8 +165,10 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
     // Endpoint for Foraging
     // -----------------------------------------------
     @GetMapping("/forage/{playerId}")
-    public ResponseEntity<?> forage(@PathVariable int playerId) {
+    public ResponseEntity<?> forage(@PathVariable int playerId, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
         try {
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
             String foragedIngredient = playerManagerService.forage(playerId);
             if (foragedIngredient.isEmpty()) {
                 return ResponseEntity.badRequest().body("No ingredient available to forage.");
@@ -178,9 +188,11 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
      * Expected JSON payload: { "playerId": <number>, "ingredientId": <number> }
      */
     @PostMapping("/ingredient/consume")
-    public ResponseEntity<?> consumeIngredient(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> consumeIngredient(@RequestBody Map<String, Object> payload, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
         try {
             int playerId = (Integer) payload.get("playerId");
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
             int ingredientId = (Integer) payload.get("ingredientId");
             // Use the helper method to get the ingredient from the player's inventory.
             IIngredient ingredient = playerManagerService.getIngredientFromInventory(playerId, ingredientId);
@@ -201,9 +213,11 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
      * Expected JSON payload: { "playerId": <number>, "potionId": <number> }
      */
     @PostMapping("/potion/consume")
-    public ResponseEntity<?> consumePotion(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> consumePotion(@RequestBody Map<String, Object> payload, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
         try {
             int playerId = (Integer) payload.get("playerId");
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
             int potionId = (Integer) payload.get("potionId");
             // Use the helper method to get the potion from the player's inventory.
             IPotion potion = playerManagerService.getPotionFromInventory(playerId, potionId);
@@ -220,9 +234,12 @@ public ResponseEntity<?> getInventory(@PathVariable int playerId) {
     }
 
 @PostMapping("/levelup")
-public ResponseEntity<?> levelUpPlayer(@RequestBody Map<String, Object> payload) {
+public ResponseEntity<?> levelUpPlayer(@RequestBody Map<String, Object> payload, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
     try {
         int playerId = (Integer) payload.get("playerId");
+        // Identity first; the secret-password gate below is unchanged.
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
         String secretPassword = (String) payload.get("secretPassword");
         Player player = playerManagerService.getPlayerById(playerId);
         if (player == null) {
@@ -243,8 +260,10 @@ public ResponseEntity<?> levelUpPlayer(@RequestBody Map<String, Object> payload)
 
 
 @GetMapping("/knowledge/{playerId}")
-public ResponseEntity<?> getKnowledgeBook(@PathVariable int playerId) {
+public ResponseEntity<?> getKnowledgeBook(@PathVariable int playerId, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
     try {
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
         IKnowledgeBook kb = playerManagerService.getKnowledgeBook(playerId);
         IInventory inventory = playerManagerService.getInventory(playerId); // Get inventory for ingredient names
         
