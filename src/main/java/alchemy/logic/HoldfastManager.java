@@ -17,12 +17,18 @@ public class HoldfastManager implements HoldfastManagerService {
     private final IStubDatabase db;
     private final ILexiconIdentityClient identityClient;
     private static final double HAPPINESS_CHANGE_RATE = 0.5;
-    private final Random random = new Random();
+    private final Random random;
 
     @Autowired
     public HoldfastManager(IStubDatabase db, ILexiconIdentityClient identityClient) {
+        this(db, identityClient, new Random());
+    }
+
+    /** For tests: a seeded or scripted {@link Random} makes raids and growth predictable. */
+    HoldfastManager(IStubDatabase db, ILexiconIdentityClient identityClient, Random random) {
         this.db = db;
         this.identityClient = identityClient;
+        this.random = random;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +138,11 @@ public class HoldfastManager implements HoldfastManagerService {
         status.put("dailyUpkeep", round2(calculateDailyUpkeep(h)));
         status.put("netDailyGold", round2(calculateDailyGoldProduction(h) - calculateDailyUpkeep(h)));
         status.put("protection", round2(calculateProtection(h)));
-        status.put("raidChance", round2(calculateRaidChance(h)));
+        double raidChance = calculateRaidChance(h);
+        // Per in-game day, plus the same over a week, because time usually moves in multi-day
+        // jumps and a small daily figure adds up (4%/day is about 25% over 7 days).
+        status.put("raidChance", round2(raidChance));
+        status.put("raidChanceWeek", round2(HoldfastRules.chanceOverDays(raidChance, 7)));
         status.put("targetHappiness", calculateTargetHappiness(h));
         status.put("buildingMenu", buildBuildingMenu(h));
 
@@ -554,9 +564,7 @@ public class HoldfastManager implements HoldfastManagerService {
     }
 
     private double calculateRaidChance(Holdfast h) {
-        double protection = calculateProtection(h);
-        double chance = Math.max(0.5, 8 - (protection * 0.075));
-        return Math.min(8, chance);
+        return HoldfastRules.raidChance(calculateProtection(h));
     }
 
     private Map<String, Object> executeBanditRaid(Holdfast h) {
@@ -568,13 +576,13 @@ public class HoldfastManager implements HoldfastManagerService {
         }
         result.put("success", true);
 
-        // Steal 30-40% of gold
-        double stolenPercent = 0.30 + random.nextDouble() * 0.10;
+        // Steal 15-20% of gold
+        double stolenPercent = HoldfastRules.RAID_GOLD_MIN + random.nextDouble() * HoldfastRules.RAID_GOLD_SPREAD;
         double goldStolen = (int) (h.getGold() * stolenPercent);
         h.setGold(Math.max(0, h.getGold() - goldStolen));
         result.put("goldStolen", goldStolen);
 
-        // Destroy 1-3 buildings
+        // Destroy 0-2 buildings
         List<String> destructible = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : h.getBuildings().entrySet()) {
             String type = entry.getKey();
@@ -584,7 +592,7 @@ public class HoldfastManager implements HoldfastManagerService {
         }
         List<String> destroyedNames = new ArrayList<>();
         if (!destructible.isEmpty()) {
-            int numDestroy = Math.min(1 + random.nextInt(3), destructible.size());
+            int numDestroy = Math.min(random.nextInt(HoldfastRules.RAID_MAX_BUILDINGS + 1), destructible.size());
             Collections.shuffle(destructible, random);
             for (int i = 0; i < numDestroy; i++) {
                 String type = destructible.get(i);
@@ -600,8 +608,8 @@ public class HoldfastManager implements HoldfastManagerService {
         }
         result.put("buildingsDestroyed", destroyedNames);
 
-        // Casualties 5-15%
-        int casualties = (int) (h.getPopulation() * (0.05 + random.nextDouble() * 0.10));
+        // Casualties 2.5-7.5%
+        int casualties = (int) (h.getPopulation() * (HoldfastRules.RAID_CASUALTY_MIN + random.nextDouble() * HoldfastRules.RAID_CASUALTY_SPREAD));
         h.setPopulation(Math.max(20, h.getPopulation() - casualties));
         result.put("casualties", casualties);
         h.setRaidsSurvived(h.getRaidsSurvived() + 1);

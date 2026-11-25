@@ -32,6 +32,24 @@ final class HoldfastRules {
     /** Each carpenter takes this fraction off every build cost. */
     static final double CARPENTER_DISCOUNT = 0.1;
 
+    // ── Bandit raids. The chance is checked once per in-game day. ──
+    // Halved on 2026-11-24 (was 8% base, -0.075 per protection point, 0.5% floor; raids took
+    // 30-40% of gold, 1-3 buildings and 5-15% of the population).
+    /** Daily raid chance in percent with no protection at all. */
+    static final double RAID_BASE_CHANCE = 4.0;
+    /** Percentage points of daily raid chance removed per point of protection. */
+    static final double RAID_PROTECTION_FACTOR = 0.0375;
+    /** The daily chance never drops below this, however strong the defences. */
+    static final double RAID_MIN_CHANCE = 0.25;
+    /** A raid steals between RAID_GOLD_MIN and RAID_GOLD_MIN + RAID_GOLD_SPREAD of the gold. */
+    static final double RAID_GOLD_MIN = 0.15;
+    static final double RAID_GOLD_SPREAD = 0.05;
+    /** A raid destroys 0 to this many buildings (walls and the keep are never destroyed). */
+    static final int RAID_MAX_BUILDINGS = 2;
+    /** A raid kills between RAID_CASUALTY_MIN and RAID_CASUALTY_MIN + RAID_CASUALTY_SPREAD of the population. */
+    static final double RAID_CASUALTY_MIN = 0.025;
+    static final double RAID_CASUALTY_SPREAD = 0.05;
+
     /** Display order of the resource list. */
     static final List<String> RESOURCES = List.of("gold", "food", "wood", "stone", "iron", "beer", "wine", "tools", "grain", "silver");
 
@@ -121,6 +139,21 @@ final class HoldfastRules {
     }
 
     // ---- levels the clients colour by: "ok", "warn" or "danger" ----
+
+    /** Daily raid chance in percent for a given protection score. */
+    static double raidChance(double protection) {
+        double chance = RAID_BASE_CHANCE - protection * RAID_PROTECTION_FACTOR;
+        return Math.min(RAID_BASE_CHANCE, Math.max(RAID_MIN_CHANCE, chance));
+    }
+
+    /**
+     * Chance in percent of at least one raid over {@code days} days at a daily chance of
+     * {@code dailyPercent}. A small daily figure adds up: 4% a day is about 25% over a week.
+     */
+    static double chanceOverDays(double dailyPercent, int days) {
+        double p = Math.max(0, Math.min(100, dailyPercent)) / 100.0;
+        return 100.0 * (1.0 - Math.pow(1.0 - p, Math.max(0, days)));
+    }
 
     static final String OK = "ok";
     static final String WARN = "warn";
