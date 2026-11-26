@@ -66,8 +66,12 @@ public class HoldfastController {
         }
     }
 
+    /** Header carrying the caller's single-use Lexicon SSO token. */
+    static final String SSO_HEADER = "X-Lexicon-Sso";
+
     @PostMapping("/advance")
-    public ResponseEntity<?> advanceTime(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> advanceTime(@RequestBody Map<String, Object> payload,
+                                         @RequestHeader(value = SSO_HEADER, required = false) String ssoToken) {
         try {
             String groupName = (String) payload.get("groupName");
             int days = ((Number) payload.get("days")).intValue();
@@ -77,8 +81,8 @@ public class HoldfastController {
             if (days > 365) {
                 return ResponseEntity.badRequest().body("Cannot advance more than 365 days at once");
             }
-            Map<String, Object> result = holdfastManagerService.advanceTime(groupName, days);
-            return ResponseEntity.ok(result);
+            Map<String, Object> result = holdfastManagerService.advanceTimeAs(ssoToken, groupName, days);
+            return ResponseEntity.status((int) result.get("status")).body(result);
         } catch (Exception e) {
             System.err.println("Error in advanceTime: " + e.getMessage());
             e.printStackTrace();
@@ -208,13 +212,11 @@ public class HoldfastController {
     }
 
     @DeleteMapping("/{groupName}")
-    public ResponseEntity<?> deleteHoldfast(@PathVariable String groupName) {
+    public ResponseEntity<?> deleteHoldfast(@PathVariable String groupName,
+                                            @RequestHeader(value = SSO_HEADER, required = false) String ssoToken) {
         try {
-            if (holdfastManagerService.getHoldfast(groupName) == null) {
-                return ResponseEntity.notFound().build();
-            }
-            holdfastManagerService.deleteHoldfast(groupName);
-            return ResponseEntity.ok(Map.of("success", true, "message", "Holdfast deleted"));
+            Map<String, Object> result = holdfastManagerService.deleteHoldfastAs(ssoToken, groupName);
+            return ResponseEntity.status((int) result.get("status")).body(result);
         } catch (Exception e) {
             System.err.println("Error in deleteHoldfast: " + e.getMessage());
             e.printStackTrace();

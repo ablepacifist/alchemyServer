@@ -1,5 +1,7 @@
 package alchemy.api;
 
+import alchemy.logic.CallerIdentityService;
+
 import alchemy.logic.GameManagerService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,10 @@ public class GameController {
 
     @Autowired
     private GameManagerService gameManagerService;
+
+    /** Proves the caller is the player named; see CallerIdentityService. */
+    @Autowired
+    private CallerIdentityService callerIdentity;
 
     @PostMapping("/start")
     public ResponseEntity<?> startGame() {
@@ -46,8 +52,10 @@ public class GameController {
     }
 
     @GetMapping("/forage/{playerId}")
-    public ResponseEntity<?> forage(@PathVariable int playerId) {
+    public ResponseEntity<?> forage(@PathVariable int playerId, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
         try {
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
             String ingredientName = gameManagerService.forage(playerId);
             return ResponseEntity.ok("Foraged ingredient: " + ingredientName);
         } catch (Exception e) {

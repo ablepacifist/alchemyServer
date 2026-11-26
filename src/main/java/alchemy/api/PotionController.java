@@ -1,5 +1,7 @@
 package alchemy.api;
 
+import alchemy.logic.CallerIdentityService;
+
 import alchemy.logic.GameManagerService;
 import alchemy.object.Potion;
 import alchemy.object.IIngredient;
@@ -23,11 +25,17 @@ public class PotionController {
 
     @Autowired
     private GameManagerService gameManagerService;
+
+    /** Proves the caller is the player named; see CallerIdentityService. */
+    @Autowired
+    private CallerIdentityService callerIdentity;
     
     @PostMapping("/brew")
-    public ResponseEntity<?> brewPotion(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> brewPotion(@RequestBody Map<String, Object> payload, @RequestHeader(value = CallerIdentityService.SSO_HEADER, required = false) String ssoToken) {
         try {
             int playerId = (int) payload.get("playerId");
+        ResponseEntity<String> refused = CallerCheck.refusal(callerIdentity.check(ssoToken, playerId));
+        if (refused != null) return refused;
             int ingredientId1 = (int) payload.get("ingredientId1");
             int ingredientId2 = (int) payload.get("ingredientId2");
 
